@@ -25,6 +25,11 @@ PLAYER_SHOT_SPEED = 4
 
 FIRE_KEY = arcade.key.SPACE
 
+class Asteroid(arcade.Sprite):
+
+    def __init__(self):
+        super().__init__(filename="images/Meteors/meteorBrown_big1.png")
+
 class Player(arcade.Sprite):
     """
     The player
@@ -106,6 +111,8 @@ class MyGame(arcade.Window):
         # Variable that will hold a list of shots fired by the player
         self.player_shot_list = None
 
+        self.asteroids_list = None
+
         # Set up the player info
         self.player_sprite = None
         self.player_score = None
@@ -156,6 +163,11 @@ class MyGame(arcade.Window):
         # Sprite lists
         self.player_shot_list = arcade.SpriteList()
 
+        # Asteroid list
+        self.asteroids_list = arcade.SpriteList()
+
+        self.asteroids_list.append(Asteroid())
+
         # Create a Player object
         self.player_sprite = Player(
             center_x=PLAYER_START_X,
@@ -175,6 +187,9 @@ class MyGame(arcade.Window):
 
         # Draw the player sprite
         self.player_sprite.draw()
+
+        # Draw the asteriod(s)
+        self.asteroids_list.draw()
 
         # Draw players score on screen
         arcade.draw_text(
