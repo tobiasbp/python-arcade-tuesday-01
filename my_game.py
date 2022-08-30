@@ -23,12 +23,16 @@ PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
 
+
 FIRE_KEY = arcade.key.SPACE
 
 class Asteroid(arcade.Sprite):
 
     def __init__(self):
-        super().__init__(filename="images/Meteors/meteorBrown_big1.png")
+        super().__init__(
+            center_x=SCREEN_WIDTH/2,
+            center_y=SCREEN_HEIGHT/2,
+            filename="images/Meteors/meteorBrown_big1.png")
 
 class Player(arcade.Sprite):
     """
