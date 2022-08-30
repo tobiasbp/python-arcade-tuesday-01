@@ -52,15 +52,15 @@ class Player(arcade.Sprite):
 
         # Update center_x
         self.center_x += self.change_x
+        
+        # Update center_y
+        self.center_y += self.change_y
 
         # Player wraps to the left or right of the screen
         if self.right < 0:
             self.left += SCREEN_WIDTH
         elif self.left > SCREEN_WIDTH:
             self.right -= SCREEN_WIDTH
-
-        # Update center_y
-        self.center_y += self.change_y
 
         # Player wraps to the bottom or top if the screen
         if self.top < 0:
