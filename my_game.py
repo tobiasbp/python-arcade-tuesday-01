@@ -11,6 +11,7 @@ import arcade
 
 
 SPRITE_SCALING = 0.5
+BACKGROUND_COLOR = arcade.color.BLACK 
 
 # Set the size of the screen
 SCREEN_WIDTH = 800
@@ -151,7 +152,7 @@ class MyGame(arcade.Window):
 
             #self.joystick.
         # Set the background color
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(BACKGROUND_COLOR)
 
     def setup(self):
         """ Set up the game and initialize the variables. """
