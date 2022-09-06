@@ -37,7 +37,7 @@ class Player(arcade.Sprite):
         """
 
         # Graphics to use for Player
-        kwargs['filename'] = "images/playerShip1_red.png"
+        kwargs['filename'] = "images/playerShip2_red.png"
 
         # How much to scale the graphics
         kwargs['scale'] = SPRITE_SCALING
