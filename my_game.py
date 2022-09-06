@@ -115,7 +115,7 @@ class MyGame(arcade.Window):
         # Track the current state of what key is pressed
         self.left_pressed = False
         self.right_pressed = False
-        self.up_pressed = False0, 0, 0
+        self.up_pressed = False
         self.down_pressed = False
 
         # Get list of joysticks
@@ -130,9 +130,9 @@ class MyGame(arcade.Window):
             # Communicate with joystick
             self.joystick.open()
 
-            # Map joysticks functions to local functions2
+            # Map joysticks functions to local functions
             self.joystick.on_joybutton_press = self.on_joybutton_press
-            self.joystick.on_joybutton_release = self.on_joybutton_release0, 0, 0
+            self.joystick.on_joybutton_release = self.on_joybutton_release
             self.joystick.on_joyaxis_motion = self.on_joyaxis_motion
             self.joystick.on_joyhat_motion = self.on_joyhat_motion
 
