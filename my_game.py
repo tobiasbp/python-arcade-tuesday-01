@@ -8,7 +8,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 """
 
 import arcade
-
+import math
 
 SPRITE_SCALING = 0.5
 
@@ -32,7 +32,12 @@ class Asteroid(arcade.Sprite):
         super().__init__(
             center_x=SCREEN_WIDTH/2,
             center_y=SCREEN_HEIGHT/2,
-            filename="images/Meteors/meteorBrown_big1.png")
+            filename="images/Meteors/meteorBrown_big1.png",
+        )
+
+        self.change_x = 0.5
+        self.change_y = 0.5
+
 
 class Player(arcade.Sprite):
     """
@@ -226,6 +231,9 @@ class MyGame(arcade.Window):
 
         # Update the player shots
         self.player_shot_list.update()
+
+        # Update the asteroids
+        self.asteroids_list.update()
 
     def on_key_press(self, key, modifiers):
         """
