@@ -10,8 +10,8 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 import arcade
 from math import sin, cos, pi
 
-
 SPRITE_SCALING = 0.5
+BACKGROUND_COLOR = arcade.color.BLACK 
 
 # Set the size of the screen
 SCREEN_WIDTH = 800
@@ -24,7 +24,21 @@ PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
 
+
 FIRE_KEY = arcade.key.SPACE
+
+class Asteroid(arcade.Sprite):
+
+    def __init__(self):
+        super().__init__(
+            center_x=SCREEN_WIDTH/2,
+            center_y=SCREEN_HEIGHT/2,
+            filename="images/Meteors/meteorBrown_big1.png",
+        )
+
+        self.change_x = 0.5
+        self.change_y = 0.5
+
 
 class Player(arcade.Sprite):
     """
@@ -37,7 +51,7 @@ class Player(arcade.Sprite):
         """
 
         # Graphics to use for Player
-        kwargs['filename'] = "images/playerShip1_red.png"
+        kwargs['filename'] = "images/playerShip2_red.png"
 
         # How much to scale the graphics
         kwargs['scale'] = SPRITE_SCALING
@@ -126,6 +140,8 @@ class MyGame(arcade.Window):
         # Variable that will hold a list of shots fired by the player
         self.player_shot_list = None
 
+        self.asteroids_list = None
+
         # Set up the player info
         self.player_sprite = None
         self.player_score = None
@@ -162,7 +178,7 @@ class MyGame(arcade.Window):
 
             #self.joystick.
         # Set the background color
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(BACKGROUND_COLOR)
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -175,6 +191,11 @@ class MyGame(arcade.Window):
 
         # Sprite lists
         self.player_shot_list = arcade.SpriteList()
+
+        # Asteroid list
+        self.asteroids_list = arcade.SpriteList()
+
+        self.asteroids_list.append(Asteroid())
 
         # Create a Player object
         self.player_sprite = Player(
@@ -196,13 +217,27 @@ class MyGame(arcade.Window):
         # Draw the player sprite
         self.player_sprite.draw()
 
+        # Draw the asteriod(s)
+        self.asteroids_list.draw()
+
         # Draw players score on screen
         arcade.draw_text(
             "SCORE: {}".format(self.player_score),  # Text to show
             10,                  # X position
-            SCREEN_HEIGHT - 20,  # Y positon
+            SCREEN_HEIGHT - 20,  # Y position
             arcade.color.WHITE   # Color of text
         )
+
+        # Draw player lifes
+        arcade.draw_text(
+            "LIVES: {}".format(self.player_lives ),  # text to show
+            10,                  # X position
+            SCREEN_HEIGHT - 50,  # Y position
+            arcade.color.WHITE    # color of text
+        )
+
+
+
 
     def on_update(self, delta_time):
         """
@@ -229,6 +264,9 @@ class MyGame(arcade.Window):
 
         # Update the player shots
         self.player_shot_list.update()
+
+        # Update the asteroids
+        self.asteroids_list.update()
 
     def on_key_press(self, key, modifiers):
         """
