@@ -190,9 +190,20 @@ class MyGame(arcade.Window):
         arcade.draw_text(
             "SCORE: {}".format(self.player_score),  # Text to show
             10,                  # X position
-            SCREEN_HEIGHT - 20,  # Y positon
+            SCREEN_HEIGHT - 20,  # Y position
             arcade.color.WHITE   # Color of text
         )
+
+        # Draw player lifes
+        arcade.draw_text(
+            "LIVES: {}".format(self.player_lives ),  # text to show
+            10,                  # X position
+            SCREEN_HEIGHT - 50,  # Y position
+            arcade.color.WHITE    # color of text
+        )
+
+
+
 
     def on_update(self, delta_time):
         """
