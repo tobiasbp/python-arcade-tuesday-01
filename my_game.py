@@ -81,18 +81,6 @@ class Player(arcade.Sprite):
         # Update center_y
         self.center_y += self.change_y
 
-        # Player wraps to the left or right of the screen
-        if self.right < 0:
-            self.left += SCREEN_WIDTH
-        elif self.left > SCREEN_WIDTH:
-            self.right -= SCREEN_WIDTH
-
-        # Player wraps to the bottom or top if the screen
-        if self.top < 0:
-            self.bottom += SCREEN_HEIGHT
-        elif self.bottom > SCREEN_HEIGHT:
-            self.top -= SCREEN_HEIGHT
-
 
 class PlayerShot(arcade.Sprite):
     """
@@ -237,7 +225,21 @@ class MyGame(arcade.Window):
         )
 
 
+    def screen_wrap(self, list_to_wrap):
+        """
+        Object wraps around screen
+        """
 
+        for p in list_to_wrap:
+            if p.right < 0:
+                p.left = SCREEN_WIDTH
+            elif p.left > SCREEN_WIDTH:
+                p.right = 0
+
+            if p.top < 0:
+                p.bottom = SCREEN_HEIGHT
+            elif p.bottom > SCREEN_HEIGHT:
+                p.top = 0
 
     def on_update(self, delta_time):
         """
@@ -268,17 +270,12 @@ class MyGame(arcade.Window):
         # Update the asteroids
         self.asteroids_list.update()
 
-        # Wrap Asteroids
-        for a in self.asteroids_list:
-            if a.right < 0:
-                a.left = SCREEN_WIDTH
-            elif a.left > SCREEN_WIDTH:
-                a.right = 0
+        # Asteroids wraps
+        self.screen_wrap(self.asteroids_list)
 
-            if a.top < 0:
-                a.bottom = SCREEN_HEIGHT
-            elif a.bottom > SCREEN_HEIGHT:
-                a.top = 0
+        # Player wraps
+        self.screen_wrap([self.player_sprite])
+
 
     def on_key_press(self, key, modifiers):
         """
