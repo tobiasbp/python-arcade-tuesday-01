@@ -23,6 +23,7 @@ PLAYER_SPEED_X = 5
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
+PLAYER_ROTATE_SPEED = 5
 
 
 FIRE_KEY = arcade.key.SPACE
@@ -249,11 +250,9 @@ class MyGame(arcade.Window):
 
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
-            pass
-            #self.player_sprite.change_x = -PLAYER_SPEED_X
+            self.player_sprite.angle += PLAYER_ROTATE_SPEED
         elif self.right_pressed and not self.left_pressed:
-            pass
-            #self.player_sprite.change_x = PLAYER_SPEED_X
+            self.player_sprite.angle -= PLAYER_ROTATE_SPEED
 
         # Move player with joystick if present
         if self.joystick:
