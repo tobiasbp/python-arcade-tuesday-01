@@ -36,8 +36,8 @@ class Asteroid(arcade.Sprite):
             filename="images/Meteors/meteorBrown_big1.png",
         )
 
-        self.change_x = 0.5
-        self.change_y = 0.5
+        self.change_x = -0.5
+        self.change_y = -0.5
 
 
 class Player(arcade.Sprite):
@@ -267,6 +267,18 @@ class MyGame(arcade.Window):
 
         # Update the asteroids
         self.asteroids_list.update()
+
+        # Wrap Asteroids
+        for a in self.asteroids_list:
+            if a.right < 0:
+                a.left = SCREEN_WIDTH
+            elif a.left > SCREEN_WIDTH:
+                a.right = 0
+
+            if a.top < 0:
+                a.bottom = SCREEN_HEIGHT
+            elif a.bottom > SCREEN_HEIGHT:
+                a.top = 0
 
     def on_key_press(self, key, modifiers):
         """
