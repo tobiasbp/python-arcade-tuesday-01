@@ -8,7 +8,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 """
 
 import arcade
-import math
+from math import sin, cos, pi
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK 
@@ -58,6 +58,16 @@ class Player(arcade.Sprite):
 
         # Pass arguments to class arcade.Sprite
         super().__init__(**kwargs)
+
+        # Player speed
+        self.speed = 0.5
+
+        # Random angle is chosen
+        self.angle = arcade.rand_angle_360_deg()
+        
+        # Player is rotated by 45 degrees, because graphics are wrong
+        self.change_x = self.speed * cos(self.radians + pi/2)
+        self.change_y = self.speed * sin(self.radians + pi/2)
 
 
     def update(self):
@@ -235,13 +245,15 @@ class MyGame(arcade.Window):
         """
 
         # Calculate player speed based on the keys pressed
-        self.player_sprite.change_x = 0
+        #self.player_sprite.change_x = 0
 
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -PLAYER_SPEED_X
+            pass
+            #self.player_sprite.change_x = -PLAYER_SPEED_X
         elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = PLAYER_SPEED_X
+            pass
+            #self.player_sprite.change_x = PLAYER_SPEED_X
 
         # Move player with joystick if present
         if self.joystick:
