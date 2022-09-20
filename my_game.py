@@ -249,11 +249,9 @@ class MyGame(arcade.Window):
 
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
-            pass
-            #self.player_sprite.change_x = -PLAYER_SPEED_X
+            self.player_sprite.angle += 5
         elif self.right_pressed and not self.left_pressed:
-            pass
-            #self.player_sprite.change_x = PLAYER_SPEED_X
+            self.player_sprite.angle -= 5
 
         # Move player with joystick if present
         if self.joystick:
