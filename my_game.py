@@ -19,7 +19,7 @@ SCREEN_HEIGHT = 600
 
 # Variables controlling the player
 PLAYER_LIVES = 3
-PLAYER_SPEED_X = 5
+PLAYER_SPEED = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
@@ -61,7 +61,7 @@ class Player(arcade.Sprite):
         super().__init__(**kwargs)
 
         # Player speed
-        self.speed = 0.5
+        self.speed = PLAYER_SPEED
 
         # Random angle is chosen
         self.angle = arcade.rand_angle_360_deg()
@@ -254,9 +254,16 @@ class MyGame(arcade.Window):
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.angle -= PLAYER_ROTATE_SPEED
 
+        # Player rocket engine
+        if self.up_pressed:
+            # rotate player graphics to match direction
+            self.player_sprite.change_x += self.player_sprite.speed * cos(self.player_sprite.radians + pi/2)
+            self.player_sprite.change_y += self.player_sprite.speed * sin(self.player_sprite.radians + pi/2)
+        
+
         # Move player with joystick if present
         if self.joystick:
-            self.player_sprite.change_x = round(self.joystick.x) * PLAYER_SPEED_X
+            self.player_sprite.change_x = round(self.joystick.x) * PLAYER_SPEED
 
         # Update player sprite
         self.player_sprite.update()
