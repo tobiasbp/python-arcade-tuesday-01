@@ -35,11 +35,30 @@ class Asteroid(arcade.Sprite):
             center_x=SCREEN_WIDTH/2,
             center_y=SCREEN_HEIGHT/2,
             filename="images/Meteors/meteorBrown_big1.png",
+            scale=SPRITE_SCALING
         )
 
         self.change_x = -0.5
         self.change_y = -0.5
 
+class BonusUFO(arcade.Sprite):
+
+
+    def __init__(self):
+        super().__init__(
+            center_x=SCREEN_WIDTH/2,
+            center_y=SCREEN_HEIGHT/2,
+            filename="images/ufoGreen.png",
+            scale=SPRITE_SCALING
+        )
+
+        self.speed = 1.0
+
+        self.angle = arcade.rand_angle_360_deg()
+
+        # Calculate speed based on angle.
+        self.change_x = self.speed * cos(self.radians)
+        self.change_y = self.speed * sin(self.radians)
 
 class Player(arcade.Sprite):
     """
@@ -186,6 +205,11 @@ class MyGame(arcade.Window):
 
         self.asteroids_list.append(Asteroid())
 
+        # UFO list
+        self.UFO_list = arcade.SpriteList()
+
+        self.UFO_list.append(BonusUFO())
+
         # Create a Player object
         self.player_sprite = Player(
             center_x=PLAYER_START_X,
@@ -208,6 +232,9 @@ class MyGame(arcade.Window):
 
         # Draw the asteriod(s)
         self.asteroids_list.draw()
+
+        # Draw UFO
+        self.UFO_list.draw()
 
         # Draw players score on screen
         arcade.draw_text(
@@ -269,12 +296,17 @@ class MyGame(arcade.Window):
         # Update the asteroids
         self.asteroids_list.update()
 
+        # Update the UFOs
+        self.UFO_list.update()
+
         # Asteroids wraps
         self.screen_wrap(self.asteroids_list)
 
         # Player wraps
         self.screen_wrap([self.player_sprite])
 
+        # UFO wraps
+        self.screen_wrap(self.UFO_list)
 
     def on_key_press(self, key, modifiers):
         """
