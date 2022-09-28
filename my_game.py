@@ -19,7 +19,7 @@ SCREEN_HEIGHT = 600
 
 # Variables controlling the player
 PLAYER_LIVES = 3
-PLAYER_SPEED_X = 5
+PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
@@ -59,16 +59,6 @@ class Player(arcade.Sprite):
 
         # Pass arguments to class arcade.Sprite
         super().__init__(**kwargs)
-
-        # Player speed
-        self.speed = 0.5
-
-        # Random angle is chosen
-        self.angle = arcade.rand_angle_360_deg()
-        
-        # Player is rotated by 45 degrees, because graphics are wrong
-        self.change_x = self.speed * cos(self.radians + pi/2)
-        self.change_y = self.speed * sin(self.radians + pi/2)
 
 
     def update(self):
@@ -256,9 +246,16 @@ class MyGame(arcade.Window):
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.angle -= PLAYER_ROTATE_SPEED
 
+        # Player rocket engine
+        if self.up_pressed:
+            # rotate player graphics to match direction
+            self.player_sprite.change_x += PLAYER_THRUST * cos(self.player_sprite.radians + pi/2)
+            self.player_sprite.change_y += PLAYER_THRUST * sin(self.player_sprite.radians + pi/2)
+        
+
         # Move player with joystick if present
-        if self.joystick:
-            self.player_sprite.change_x = round(self.joystick.x) * PLAYER_SPEED_X
+        #if self.joystick:
+        #    self.player_sprite.change_x = round(self.joystick.x) * PLAYER_SPEED
 
         # Update player sprite
         self.player_sprite.update()
