@@ -9,6 +9,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 
 import arcade
 from math import sin, cos, pi
+import random
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK 
@@ -24,6 +25,8 @@ PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
 PLAYER_ROTATE_SPEED = 5
+UFO_CHANGE_DIR_TIME_MAX = 10
+UFO_CHANGE_DIR_TIME_MIN = 2
 
 
 FIRE_KEY = arcade.key.SPACE
@@ -51,14 +54,33 @@ class BonusUFO(arcade.Sprite):
             filename="images/ufoGreen.png",
             scale=SPRITE_SCALING
         )
-
         self.speed = 1.0
+        self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
+        self.change_dir()
+
+    def change_dir(self):
 
         self.angle = arcade.rand_angle_360_deg()
 
         # Calculate speed based on angle.
         self.change_x = self.speed * cos(self.radians)
         self.change_y = self.speed * sin(self.radians)
+
+    def on_update(self, delta_time):
+
+        # Moves sprite
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        # Time passes
+        self.dir_timer -= delta_time
+
+        # No more time, change direction
+        if self.dir_timer < 0:
+            self.change_dir()
+            self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
+            print(self.dir_timer)
+
 
 class Player(arcade.Sprite):
     """
@@ -277,6 +299,8 @@ class MyGame(arcade.Window):
         # Calculate player speed based on the keys pressed
         #self.player_sprite.change_x = 0
 
+
+
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
             self.player_sprite.angle += PLAYER_ROTATE_SPEED
@@ -297,7 +321,7 @@ class MyGame(arcade.Window):
         self.asteroids_list.update()
 
         # Update the UFOs
-        self.UFO_list.update()
+        self.UFO_list.on_update(delta_time)
 
         # Asteroids wraps
         self.screen_wrap(self.asteroids_list)
