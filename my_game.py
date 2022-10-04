@@ -77,12 +77,13 @@ class PlayerShot(arcade.Sprite):
     """
     A shot fired by the Player
     """
+    sound_fire = arcade.load_sound("sounds/laserLarge_000.ogg")
 
     def __init__(self, center_x=0, center_y=0):
         """
         Setup new PlayerShot object
         """
-
+        PlayerShot.sound_fire.play()
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
