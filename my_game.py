@@ -120,7 +120,7 @@ class PlayerShot(arcade.Sprite):
     """
     sound_fire = arcade.load_sound("sounds/laserLarge_000.ogg")
 
-    def __init__(self, center_x=0, center_y=0):
+    def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
@@ -128,9 +128,11 @@ class PlayerShot(arcade.Sprite):
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
-        self.center_x = center_x
-        self.center_y = center_y
-        self.change_y = PLAYER_SHOT_SPEED
+        self.angle = my_player.angle
+        self.center_x = my_player.center_x
+        self.center_y = my_player.center_y
+        self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi/2)
+        self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi/2)
 
     def update(self):
         """
@@ -138,6 +140,7 @@ class PlayerShot(arcade.Sprite):
         """
 
         # Update y position
+        self.center_x += self.change_x
         self.center_y += self.change_y
 
         # Remove shot when over top of screen
@@ -347,8 +350,7 @@ class MyGame(arcade.Window):
 
         if key == FIRE_KEY:
             new_shot = PlayerShot(
-                self.player_sprite.center_x,
-                self.player_sprite.center_y
+                self.player_sprite
             )
 
             self.player_shot_list.append(new_shot)
