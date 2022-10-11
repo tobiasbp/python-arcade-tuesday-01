@@ -51,12 +51,13 @@ class BonusUFO(arcade.Sprite):
         super().__init__(
             center_x=SCREEN_WIDTH/2,
             center_y=SCREEN_HEIGHT/2,
-            filename="images/ufoGreen.png",
-            scale=SPRITE_SCALING
+            filename="images/ufoGreen.png"
         )
         self.speed = 1.0
         self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
         self.change_dir()
+        self.scale = random.choice([1*SPRITE_SCALING, 2*SPRITE_SCALING])
+
 
     def change_dir(self):
 
@@ -80,6 +81,8 @@ class BonusUFO(arcade.Sprite):
             self.change_dir()
             self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
             print(self.dir_timer)
+
+
 
 
 class Player(arcade.Sprite):
