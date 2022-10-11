@@ -106,6 +106,8 @@ class Player(arcade.Sprite):
         """
         Move the sprite
         """
+        self.thrust_x = PLAYER_THRUST * cos(self.radians + pi/2)
+        self.thrust_y = PLAYER_THRUST * sin(self.radians + pi/2)
 
         # Update center_x
         self.center_x += self.change_x
@@ -294,7 +296,6 @@ class MyGame(arcade.Window):
         #self.player_sprite.change_x = 0
 
 
-
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
             self.player_sprite.angle += PLAYER_ROTATE_SPEED
@@ -304,8 +305,8 @@ class MyGame(arcade.Window):
         # Player rocket engine
         if self.up_pressed:
             # rotate player graphics to match direction
-            self.player_sprite.change_x += PLAYER_THRUST * cos(self.player_sprite.radians + pi/2)
-            self.player_sprite.change_y += PLAYER_THRUST * sin(self.player_sprite.radians + pi/2)
+            self.player_sprite.change_x += self.player_sprite.thrust_x
+            self.player_sprite.change_y += self.player_sprite.thrust_y
         
 
         # Move player with joystick if present
