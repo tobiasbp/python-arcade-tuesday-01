@@ -9,6 +9,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 
 import arcade
 from math import sin, cos, pi
+import random
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK 
@@ -24,6 +25,8 @@ PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
 PLAYER_ROTATE_SPEED = 5
+UFO_CHANGE_DIR_TIME_MAX = 10
+UFO_CHANGE_DIR_TIME_MIN = 2
 
 
 FIRE_KEY = arcade.key.SPACE
@@ -35,10 +38,48 @@ class Asteroid(arcade.Sprite):
             center_x=SCREEN_WIDTH/2,
             center_y=SCREEN_HEIGHT/2,
             filename="images/Meteors/meteorBrown_big1.png",
+            scale=SPRITE_SCALING
         )
 
         self.change_x = -0.5
         self.change_y = -0.5
+
+class BonusUFO(arcade.Sprite):
+
+
+    def __init__(self):
+        super().__init__(
+            center_x=SCREEN_WIDTH/2,
+            center_y=SCREEN_HEIGHT/2,
+            filename="images/ufoGreen.png",
+            scale=SPRITE_SCALING
+        )
+        self.speed = 1.0
+        self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
+        self.change_dir()
+
+    def change_dir(self):
+
+        self.angle = arcade.rand_angle_360_deg()
+
+        # Calculate speed based on angle.
+        self.change_x = self.speed * cos(self.radians)
+        self.change_y = self.speed * sin(self.radians)
+
+    def on_update(self, delta_time):
+
+        # Moves sprite
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        # Time passes
+        self.dir_timer -= delta_time
+
+        # No more time, change direction
+        if self.dir_timer < 0:
+            self.change_dir()
+            self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
+            print(self.dir_timer)
 
 
 class Player(arcade.Sprite):
@@ -177,6 +218,11 @@ class MyGame(arcade.Window):
 
         self.asteroids_list.append(Asteroid())
 
+        # UFO list
+        self.UFO_list = arcade.SpriteList()
+
+        self.UFO_list.append(BonusUFO())
+
         # Create a Player object
         self.player_sprite = Player(
             center_x=PLAYER_START_X,
@@ -199,6 +245,9 @@ class MyGame(arcade.Window):
 
         # Draw the asteriod(s)
         self.asteroids_list.draw()
+
+        # Draw UFO
+        self.UFO_list.draw()
 
         # Draw players score on screen
         arcade.draw_text(
@@ -241,6 +290,8 @@ class MyGame(arcade.Window):
         # Calculate player speed based on the keys pressed
         #self.player_sprite.change_x = 0
 
+
+
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
             self.player_sprite.angle += PLAYER_ROTATE_SPEED
@@ -267,12 +318,17 @@ class MyGame(arcade.Window):
         # Update the asteroids
         self.asteroids_list.update()
 
+        # Update the UFOs
+        self.UFO_list.on_update(delta_time)
+
         # Asteroids wraps
         self.screen_wrap(self.asteroids_list)
 
         # Player wraps
         self.screen_wrap([self.player_sprite])
 
+        # UFO wraps
+        self.screen_wrap(self.UFO_list)
 
     def on_key_press(self, key, modifiers):
         """
