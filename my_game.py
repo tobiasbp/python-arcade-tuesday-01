@@ -78,7 +78,7 @@ class PlayerShot(arcade.Sprite):
     A shot fired by the Player
     """
 
-    def __init__(self, center_x, center_y, angle):
+    def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
@@ -86,9 +86,9 @@ class PlayerShot(arcade.Sprite):
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
-        self.angle = angle
-        self.center_x = center_x
-        self.center_y = center_y
+        self.angle = my_player.angle
+        self.center_x = my_player.center_x
+        self.center_y = my_player.center_y
         self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi/2)
         self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi/2)
 
@@ -293,9 +293,7 @@ class MyGame(arcade.Window):
 
         if key == FIRE_KEY:
             new_shot = PlayerShot(
-                self.player_sprite.center_x,
-                self.player_sprite.center_y,
-                self.player_sprite.angle
+                self.player_sprite
             )
 
             self.player_shot_list.append(new_shot)
