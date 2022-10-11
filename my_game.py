@@ -89,8 +89,8 @@ class PlayerShot(arcade.Sprite):
         self.angle = angle
         self.center_x = center_x
         self.center_y = center_y
-        self.change_x = PLAYER_SHOT_SPEED
-        self.change_y = PLAYER_SHOT_SPEED
+        self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi/2)
+        self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi/2)
 
     def update(self):
         """
@@ -98,8 +98,8 @@ class PlayerShot(arcade.Sprite):
         """
 
         # Update y position
-        self.center_x += self.change_x * cos(self.radians + pi/2)
-        self.center_y += self.change_y * sin(self.radians + pi/2)
+        self.center_x += self.change_x
+        self.center_y += self.change_y
 
         # Remove shot when over top of screen
         if self.bottom > SCREEN_HEIGHT:
