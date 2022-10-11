@@ -109,7 +109,7 @@ class Player(arcade.Sprite):
 
         # Update center_x
         self.center_x += self.change_x
-        
+
         # Update center_y
         self.center_y += self.change_y
 
@@ -118,7 +118,7 @@ class PlayerShot(arcade.Sprite):
     """
     A shot fired by the Player
     """
-    sound_fire = arcade.load_sound("sounds/laserLarge_000.ogg")
+    sound_fire = arcade.load_sound("sounds/laserLarge_000.mp3")
 
     def __init__(self, my_player):
         """
