@@ -101,14 +101,14 @@ class Player(arcade.Sprite):
         # Pass arguments to class arcade.Sprite
         super().__init__(**kwargs)
 
+    def player_thrust(self):
+        self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
+        self.change_y += PLAYER_THRUST * sin(self.radians + pi/2)
 
     def update(self):
         """
         Move the sprite
         """
-        self.thrust_x = PLAYER_THRUST * cos(self.radians + pi/2)
-        self.thrust_y = PLAYER_THRUST * sin(self.radians + pi/2)
-
         # Update center_x
         self.center_x += self.change_x
         
@@ -304,9 +304,7 @@ class MyGame(arcade.Window):
 
         # Player rocket engine
         if self.up_pressed:
-            # rotate player graphics to match direction
-            self.player_sprite.change_x += self.player_sprite.thrust_x
-            self.player_sprite.change_y += self.player_sprite.thrust_y
+            self.player_sprite.player_thrust()
         
 
         # Move player with joystick if present
