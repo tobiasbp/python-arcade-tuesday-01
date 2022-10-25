@@ -121,13 +121,13 @@ class PlayerShot(arcade.Sprite):
     """
     A shot fired by the Player
     """
-    sound_fire = arcade.load_sound("sounds/laserLarge_000.mp3")
+    #sound_fire = arcade.load_sound("sounds/laserLarge_000.mp3")
 
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
-        PlayerShot.sound_fire.play()
+        #PlayerShot.sound_fire.play()
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
@@ -166,8 +166,8 @@ class MyGame(arcade.Window):
 
         # Variable that will hold a list of shots fired by the player
         self.player_shot_list = None
-
         self.asteroids_list = None
+        self.UFO_list = None
 
         # Set up the player info
         self.player_sprite = None
@@ -296,7 +296,10 @@ class MyGame(arcade.Window):
         # Calculate player speed based on the keys pressed
         #self.player_sprite.change_x = 0
 
-
+        for s in self.player_shot_list:
+            for u in s.collides_with_list(self.UFO_list):
+                s.kill()
+                u.kill()
 
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
