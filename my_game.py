@@ -28,7 +28,6 @@ PLAYER_ROTATE_SPEED = 5
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
 
-
 FIRE_KEY = arcade.key.SPACE
 
 class Asteroid(arcade.Sprite):
@@ -56,8 +55,9 @@ class BonusUFO(arcade.Sprite):
         self.speed = 1.0
         self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
         self.change_dir()
-        self.scale = random.choice([1*SPRITE_SCALING, 2*SPRITE_SCALING])
-
+        self.scale, self.value = random.choice(
+            [(1*SPRITE_SCALING,100), (2*SPRITE_SCALING,200)]
+        )
 
     def change_dir(self):
 
@@ -103,6 +103,7 @@ class Player(arcade.Sprite):
 
         # Pass arguments to class arcade.Sprite
         super().__init__(**kwargs)
+        self.score = 0
 
 
     def update(self):
@@ -171,7 +172,6 @@ class MyGame(arcade.Window):
 
         # Set up the player info
         self.player_sprite = None
-        self.player_score = None
         self.player_lives = None
 
         # Track the current state of what key is pressed
@@ -209,9 +209,6 @@ class MyGame(arcade.Window):
 
     def setup(self):
         """ Set up the game and initialize the variables. """
-
-        # No points when the game starts
-        self.player_score = 0
 
         # No of lives
         self.player_lives = PLAYER_LIVES
@@ -257,7 +254,7 @@ class MyGame(arcade.Window):
 
         # Draw players score on screen
         arcade.draw_text(
-            "SCORE: {}".format(self.player_score),  # Text to show
+            "SCORE: {}".format(self.player_sprite.score),  # Text to show
             10,                  # X position
             SCREEN_HEIGHT - 20,  # Y position
             arcade.color.WHITE   # Color of text
@@ -298,6 +295,7 @@ class MyGame(arcade.Window):
 
         for s in self.player_shot_list:
             for u in s.collides_with_list(self.UFO_list):
+                self.player_sprite.score += u.value
                 s.kill()
                 u.kill()
 
