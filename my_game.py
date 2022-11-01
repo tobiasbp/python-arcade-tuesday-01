@@ -293,11 +293,21 @@ class MyGame(arcade.Window):
         # Calculate player speed based on the keys pressed
         #self.player_sprite.change_x = 0
 
+
+        # Do player_shot and UFO collide?
         for s in self.player_shot_list:
             for u in s.collides_with_list(self.UFO_list):
                 self.player_sprite.score += u.value
                 s.kill()
                 u.kill()
+
+        # Do UFO and player collide?
+        for u in self.player_sprite.collides_with_list(self.UFO_list):
+            u.kill()
+            self.player_sprite.kill()
+            print("PLAYER DIED!")
+            exit(0)
+
 
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
