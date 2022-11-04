@@ -8,7 +8,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 """
 
 import arcade
-from math import sin, cos, pi
+from math import sin, cos, pi, sqrt
 import random
 
 SPRITE_SCALING = 0.5
@@ -25,6 +25,7 @@ PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
 PLAYER_ROTATE_SPEED = 5
+PLAYER_MAX_SPEED = 7
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
 
@@ -107,6 +108,11 @@ class Player(arcade.Sprite):
     def player_thrust(self):
         self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
         self.change_y += PLAYER_THRUST * sin(self.radians + pi/2)
+
+        if sqrt(self.change_x**2 + self.change_y**2) > PLAYER_MAX_SPEED:
+            self.change_x /= sqrt(self.change_x**2 + self.change_y**2)/PLAYER_MAX_SPEED
+            self.change_y /= sqrt(self.change_x**2 + self.change_y**2)/PLAYER_MAX_SPEED
+
 
     def update(self):
         """
