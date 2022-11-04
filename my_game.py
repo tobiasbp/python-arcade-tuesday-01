@@ -110,8 +110,9 @@ class Player(arcade.Sprite):
         self.change_y += PLAYER_THRUST * sin(self.radians + pi/2)
 
         if sqrt(self.change_x**2 + self.change_y**2) > PLAYER_MAX_SPEED:
-            self.change_x /= sqrt(self.change_x**2 + self.change_y**2)/PLAYER_MAX_SPEED
-            self.change_y /= sqrt(self.change_x**2 + self.change_y**2)/PLAYER_MAX_SPEED
+            modifier = sqrt(self.change_x**2 + self.change_y**2)/PLAYER_MAX_SPEED
+            self.change_x /= modifier
+            self.change_y /= modifier
 
 
     def update(self):
