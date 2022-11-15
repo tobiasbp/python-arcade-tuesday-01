@@ -335,6 +335,12 @@ class MyGame(arcade.Window):
         # UFO wraps
         self.screen_wrap(self.UFO_list)
 
+        # Kill asteroids who collide with player and make player loose a life
+        for a in self.player_sprite.collides_with_list(self.asteroids_list):
+            a.kill()
+            self.player_lives -= 1
+
+
     def on_key_press(self, key, modifiers):
         """
         Called whenever a key is pressed.
