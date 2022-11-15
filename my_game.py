@@ -27,6 +27,8 @@ PLAYER_SHOT_SPEED = 4
 PLAYER_ROTATE_SPEED = 5
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
+UFO_SPAWN_TIME_MAX = 80
+UFO_SPAWN_TIME_MIN = 25
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -122,13 +124,13 @@ class PlayerShot(arcade.Sprite):
     """
     A shot fired by the Player
     """
-    #sound_fire = arcade.load_sound("sounds/laserLarge_000.mp3")
+    sound_fire = arcade.load_sound("sounds/laserLarge_000.mp3")
 
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
-        #PlayerShot.sound_fire.play()
+        PlayerShot.sound_fire.play()
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
@@ -223,8 +225,8 @@ class MyGame(arcade.Window):
 
         # UFO list
         self.UFO_list = arcade.SpriteList()
+        self.UFO_spawn_timer = 0
 
-        self.UFO_list.append(BonusUFO())
 
         # Create a Player object
         self.player_sprite = Player(
@@ -307,6 +309,13 @@ class MyGame(arcade.Window):
             self.player_sprite.kill()
             print("PLAYER DIED!")
             exit(0)
+
+        self.UFO_spawn_timer -= delta_time
+
+        if self.UFO_spawn_timer <= 0:
+            self.UFO_spawn_timer = random.randint(UFO_CHANGE_DIR_TIME_MIN,UFO_SPAWN_TIME_MAX)
+            print(self.UFO_spawn_timer)
+            self.UFO_list.append(BonusUFO())
 
 
         # Move player with keyboard
