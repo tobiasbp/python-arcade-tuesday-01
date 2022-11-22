@@ -28,6 +28,7 @@ PLAYER_ROTATE_SPEED = 5
 PLAYER_MAX_SPEED = 7
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
+ASTEROIDS_TIMER = 5
 
 
 FIRE_KEY = arcade.key.SPACE
@@ -83,9 +84,6 @@ class BonusUFO(arcade.Sprite):
             self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
             print(self.dir_timer)
 
-
-
-
 class Player(arcade.Sprite):
     """
     The player
@@ -126,7 +124,6 @@ class Player(arcade.Sprite):
 
         # Update center_y
         self.center_y += self.change_y
-
 
 class PlayerShot(arcade.Sprite):
     """
@@ -235,6 +232,9 @@ class MyGame(arcade.Window):
 
         self.asteroids_list.append(Asteroid())
 
+        # Time between asteroid spawn
+        self.asteroids_timer = ASTEROIDS_TIMER
+
         # UFO list
         self.UFO_list = arcade.SpriteList()
 
@@ -328,6 +328,15 @@ class MyGame(arcade.Window):
 
         # Update the player shots
         self.player_shot_list.update()
+
+        # Time between asteroid spawn count down
+        self.asteroids_timer -= 1 * delta_time
+
+        # Make new asteroid if the right amount of time has passed
+        if self.asteroids_timer <= 0:
+            self.asteroids_list.append(Asteroid())
+            self.asteroids_timer = ASTEROIDS_TIMER
+
 
         # Update the asteroids
         self.asteroids_list.update()
