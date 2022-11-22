@@ -27,8 +27,8 @@ PLAYER_SHOT_SPEED = 4
 PLAYER_ROTATE_SPEED = 5
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
-UFO_SPAWN_TIME_MAX = 80
-UFO_SPAWN_TIME_MIN = 25
+UFO_SPAWN_TIME_MAX = 35
+UFO_SPAWN_TIME_MIN = 80
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -50,16 +50,40 @@ class BonusUFO(arcade.Sprite):
 
     def __init__(self):
         super().__init__(
-            center_x=SCREEN_WIDTH/2,
+            # center_x=SCREEN_WIDTH/2,
             center_y=SCREEN_HEIGHT/2,
             filename="images/ufoGreen.png"
         )
+        self.ufo_spawn = 0
         self.speed = 1.0
         self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
-        self.change_dir()
         self.scale, self.value = random.choice(
             [(1*SPRITE_SCALING,100), (2*SPRITE_SCALING,200)]
         )
+
+        self.where_to_spawn = random.randint(1,4)
+
+        if self.where_to_spawn == 1:
+            # Right. When spawning to the left it wraps right.
+            self.center_x = SCREEN_WIDTH + self.width
+            self.center_y = random.randint(0, SCREEN_HEIGHT)
+        elif self.where_to_spawn == 2:
+            # Left. When spawning to the right it wraps left.
+            self.center_x = - 1 * self.width
+            self.center_y = random.randint(0, SCREEN_HEIGHT)
+        elif self.where_to_spawn == 3:
+            # Top. When spawning to at the bottom it wraps to the top.
+            self.center_x = random.randint(0, SCREEN_WIDTH)
+            self.center_y = SCREEN_HEIGHT + self.height
+        else:
+            # Bottom. When spawning to at the top it wraps to the bottom.
+            self.center_x = random.randint(0, SCREEN_WIDTH)
+            self.center_y = -1 * self.height
+
+
+
+
+        self.change_dir()
 
     def change_dir(self):
 
@@ -82,7 +106,7 @@ class BonusUFO(arcade.Sprite):
         if self.dir_timer < 0:
             self.change_dir()
             self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
-            print(self.dir_timer)
+            # print(self.dir_timer)
 
 
 
@@ -314,7 +338,7 @@ class MyGame(arcade.Window):
 
         if self.UFO_spawn_timer <= 0:
             self.UFO_spawn_timer = random.randint(UFO_CHANGE_DIR_TIME_MIN,UFO_SPAWN_TIME_MAX)
-            print(self.UFO_spawn_timer)
+            # print(self.UFO_spawn_timer)
             self.UFO_list.append(BonusUFO())
 
 
