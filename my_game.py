@@ -330,7 +330,7 @@ class MyGame(arcade.Window):
         self.player_shot_list.update()
 
         # Time between asteroid spawn count down
-        self.asteroids_timer -= 1 * delta_time
+        self.asteroids_timer -= delta_time
 
         # Make new asteroid if the right amount of time has passed
         if self.asteroids_timer <= 0:
