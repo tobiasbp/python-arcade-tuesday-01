@@ -28,8 +28,9 @@ PLAYER_ROTATE_SPEED = 5
 PLAYER_MAX_SPEED = 7
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
-ASTEROIDS_TIMER = 5
 
+# Time between asteroids spawn
+ASTEROIDS_TIMER_SECONDS = 5
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -233,7 +234,7 @@ class MyGame(arcade.Window):
         self.asteroids_list.append(Asteroid())
 
         # Time between asteroid spawn
-        self.asteroids_timer = ASTEROIDS_TIMER
+        self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
 
         # UFO list
         self.UFO_list = arcade.SpriteList()
@@ -330,12 +331,12 @@ class MyGame(arcade.Window):
         self.player_shot_list.update()
 
         # Time between asteroid spawn count down
-        self.asteroids_timer -= delta_time
+        self.asteroids_timer_seconds -= delta_time
 
         # Make new asteroid if the right amount of time has passed
         if self.asteroids_timer <= 0:
             self.asteroids_list.append(Asteroid())
-            self.asteroids_timer = ASTEROIDS_TIMER
+            self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
 
 
         # Update the asteroids
