@@ -46,6 +46,8 @@ class Asteroid(arcade.Sprite):
 
 class BonusUFO(arcade.Sprite):
 
+    # when the UFO wraps it say are sound
+    sound_wraps = arcade.load_sound("sounds/forceField_004.ogg")
 
     def __init__(self):
         super().__init__(
@@ -265,7 +267,7 @@ class MyGame(arcade.Window):
             arcade.color.WHITE   # Color of text
         )
 
-        # Draw player lifes
+        # Draw player lives
         arcade.draw_text(
             "LIVES: {}".format(self.player_lives ),  # text to show
             10,                  # X position
@@ -276,19 +278,28 @@ class MyGame(arcade.Window):
 
     def screen_wrap(self, list_to_wrap):
         """
-        Object wraps around screen
+        Object wraps around screen.
+        returns True if something wraps else False
         """
+        some_thing_wrapped = False
 
         for p in list_to_wrap:
+            # wrap on x axis
             if p.right < 0:
                 p.left = SCREEN_WIDTH
+                some_thing_wrapped = True
             elif p.left > SCREEN_WIDTH:
                 p.right = 0
-
+                some_thing_wrapped = True
+            # wrap on y axis
             if p.top < 0:
                 p.bottom = SCREEN_HEIGHT
+                some_thing_wrapped = True
             elif p.bottom > SCREEN_HEIGHT:
                 p.top = 0
+                some_thing_wrapped = True
+
+        return some_thing_wrapped
 
     def on_update(self, delta_time):
         """
@@ -326,6 +337,7 @@ class MyGame(arcade.Window):
         # Update the UFOs
         self.UFO_list.on_update(delta_time)
 
+
         # Asteroids wraps
         self.screen_wrap(self.asteroids_list)
 
@@ -333,7 +345,9 @@ class MyGame(arcade.Window):
         self.screen_wrap([self.player_sprite])
 
         # UFO wraps
-        self.screen_wrap(self.UFO_list)
+        a_ufo_wrapped = self.screen_wrap(self.UFO_list)
+        if a_ufo_wrapped == True:
+            BonusUFO.sound_wraps.play()
 
     def on_key_press(self, key, modifiers):
         """
