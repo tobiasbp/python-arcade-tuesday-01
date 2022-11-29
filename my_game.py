@@ -359,6 +359,9 @@ class MyGame(arcade.Window):
             a.kill()
             self.player_lives -= 1
 
+            # Restart game if player is dead
+            if self.player_lives < 1:
+                self.setup()
 
     def on_key_press(self, key, modifiers):
         """
