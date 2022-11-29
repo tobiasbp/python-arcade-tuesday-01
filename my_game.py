@@ -28,9 +28,11 @@ PLAYER_ROTATE_SPEED = 5
 PLAYER_MAX_SPEED = 7
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
-
+UFO_SPAWN_TIME_MAX = 35
+UFO_SPAWN_TIME_MIN = 80
 # Time between asteroids spawn
 ASTEROIDS_TIMER_SECONDS = 5
+
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -52,15 +54,40 @@ class BonusUFO(arcade.Sprite):
 
     def __init__(self):
         super().__init__(
-            center_x=SCREEN_WIDTH/2,
+            # center_x=SCREEN_WIDTH/2,
             center_y=SCREEN_HEIGHT/2,
             filename="images/ufoGreen.png"
         )
+        self.ufo_spawn = 0
         self.speed = 1.0
         self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
-        self.change_dir()
-        self.scale = random.choice([1*SPRITE_SCALING, 2*SPRITE_SCALING])
+        self.scale, self.value = random.choice(
+            [(1*SPRITE_SCALING,100), (2*SPRITE_SCALING,200)]
+        )
 
+        self.where_to_spawn = random.randint(1,4)
+
+        if self.where_to_spawn == 1:
+            # Right. When spawning to the left it wraps right.
+            self.center_x = SCREEN_WIDTH + self.width
+            self.center_y = random.randint(0, SCREEN_HEIGHT)
+        elif self.where_to_spawn == 2:
+            # Left. When spawning to the right it wraps left.
+            self.center_x = - 1 * self.width
+            self.center_y = random.randint(0, SCREEN_HEIGHT)
+        elif self.where_to_spawn == 3:
+            # Top. When spawning to at the bottom it wraps to the top.
+            self.center_x = random.randint(0, SCREEN_WIDTH)
+            self.center_y = SCREEN_HEIGHT + self.height
+        else:
+            # Bottom. When spawning to at the top it wraps to the bottom.
+            self.center_x = random.randint(0, SCREEN_WIDTH)
+            self.center_y = -1 * self.height
+
+
+
+
+        self.change_dir()
 
     def change_dir(self):
 
@@ -83,7 +110,7 @@ class BonusUFO(arcade.Sprite):
         if self.dir_timer < 0:
             self.change_dir()
             self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
-            print(self.dir_timer)
+            # print(self.dir_timer)
 
 class Player(arcade.Sprite):
     """
@@ -103,6 +130,7 @@ class Player(arcade.Sprite):
 
         # Pass arguments to class arcade.Sprite
         super().__init__(**kwargs)
+        self.score = 0
 
     def player_thrust(self):
         self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
@@ -175,12 +203,11 @@ class MyGame(arcade.Window):
 
         # Variable that will hold a list of shots fired by the player
         self.player_shot_list = None
-
         self.asteroids_list = None
+        self.UFO_list = None
 
         # Set up the player info
         self.player_sprite = None
-        self.player_score = None
         self.player_lives = None
 
         # Track the current state of what key is pressed
@@ -219,9 +246,6 @@ class MyGame(arcade.Window):
     def setup(self):
         """ Set up the game and initialize the variables. """
 
-        # No points when the game starts
-        self.player_score = 0
-
         # No of lives
         self.player_lives = PLAYER_LIVES
 
@@ -238,8 +262,8 @@ class MyGame(arcade.Window):
 
         # UFO list
         self.UFO_list = arcade.SpriteList()
+        self.UFO_spawn_timer = 0
 
-        self.UFO_list.append(BonusUFO())
 
         # Create a Player object
         self.player_sprite = Player(
@@ -269,7 +293,7 @@ class MyGame(arcade.Window):
 
         # Draw players score on screen
         arcade.draw_text(
-            "SCORE: {}".format(self.player_score),  # Text to show
+            "SCORE: {}".format(self.player_sprite.score),  # Text to show
             10,                  # X position
             SCREEN_HEIGHT - 20,  # Y position
             arcade.color.WHITE   # Color of text
@@ -308,6 +332,27 @@ class MyGame(arcade.Window):
         # Calculate player speed based on the keys pressed
         #self.player_sprite.change_x = 0
 
+
+        # Do player_shot and UFO collide?
+        for s in self.player_shot_list:
+            for u in s.collides_with_list(self.UFO_list):
+                self.player_sprite.score += u.value
+                s.kill()
+                u.kill()
+
+        # Do UFO and player collide?
+        for u in self.player_sprite.collides_with_list(self.UFO_list):
+            u.kill()
+            self.player_sprite.kill()
+            print("PLAYER DIED!")
+            exit(0)
+
+        self.UFO_spawn_timer -= delta_time
+
+        if self.UFO_spawn_timer <= 0:
+            self.UFO_spawn_timer = random.randint(UFO_CHANGE_DIR_TIME_MIN,UFO_SPAWN_TIME_MAX)
+            # print(self.UFO_spawn_timer)
+            self.UFO_list.append(BonusUFO())
 
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
