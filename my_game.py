@@ -8,7 +8,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 """
 
 import arcade
-from math import sin, cos, pi
+from math import sin, cos, pi, sqrt
 import random
 
 SPRITE_SCALING = 0.5
@@ -25,10 +25,14 @@ PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
 PLAYER_ROTATE_SPEED = 5
+PLAYER_MAX_SPEED = 7
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
 UFO_SPAWN_TIME_MAX = 35
 UFO_SPAWN_TIME_MIN = 80
+# Time between asteroids spawn
+ASTEROIDS_TIMER_SECONDS = 5
+
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -108,9 +112,6 @@ class BonusUFO(arcade.Sprite):
             self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
             # print(self.dir_timer)
 
-
-
-
 class Player(arcade.Sprite):
     """
     The player
@@ -131,18 +132,27 @@ class Player(arcade.Sprite):
         super().__init__(**kwargs)
         self.score = 0
 
+    def player_thrust(self):
+        self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
+        self.change_y += PLAYER_THRUST * sin(self.radians + pi/2)
+
+        speed = sqrt(self.change_x**2 + self.change_y**2)
+
+        if speed > PLAYER_MAX_SPEED:
+            self.change_x /= speed/PLAYER_MAX_SPEED
+            self.change_y /= speed/PLAYER_MAX_SPEED
+            print(speed)
+
 
     def update(self):
         """
         Move the sprite
         """
-
         # Update center_x
         self.center_x += self.change_x
 
         # Update center_y
         self.center_y += self.change_y
-
 
 class PlayerShot(arcade.Sprite):
     """
@@ -247,6 +257,9 @@ class MyGame(arcade.Window):
 
         self.asteroids_list.append(Asteroid())
 
+        # Time between asteroid spawn
+        self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
+
         # UFO list
         self.UFO_list = arcade.SpriteList()
         self.UFO_spawn_timer = 0
@@ -341,7 +354,6 @@ class MyGame(arcade.Window):
             # print(self.UFO_spawn_timer)
             self.UFO_list.append(BonusUFO())
 
-
         # Move player with keyboard
         if self.left_pressed and not self.right_pressed:
             self.player_sprite.angle += PLAYER_ROTATE_SPEED
@@ -350,9 +362,7 @@ class MyGame(arcade.Window):
 
         # Player rocket engine
         if self.up_pressed:
-            # rotate player graphics to match direction
-            self.player_sprite.change_x += PLAYER_THRUST * cos(self.player_sprite.radians + pi/2)
-            self.player_sprite.change_y += PLAYER_THRUST * sin(self.player_sprite.radians + pi/2)
+            self.player_sprite.player_thrust()
         
 
         # Move player with joystick if present
@@ -364,6 +374,15 @@ class MyGame(arcade.Window):
 
         # Update the player shots
         self.player_shot_list.update()
+
+        # Time between asteroid spawn count down
+        self.asteroids_timer_seconds -= delta_time
+
+        # Make new asteroid if the right amount of time has passed
+        if self.asteroids_timer <= 0:
+            self.asteroids_list.append(Asteroid())
+            self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
+
 
         # Update the asteroids
         self.asteroids_list.update()
@@ -379,6 +398,15 @@ class MyGame(arcade.Window):
 
         # UFO wraps
         self.screen_wrap(self.UFO_list)
+
+        # Kill asteroids who collide with player and make player loose a life
+        for a in self.player_sprite.collides_with_list(self.asteroids_list):
+            a.kill()
+            self.player_lives -= 1
+
+            # Restart game if player is dead
+            if self.player_lives < 1:
+                self.setup()
 
     def on_key_press(self, key, modifiers):
         """
