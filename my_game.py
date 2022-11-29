@@ -334,7 +334,7 @@ class MyGame(arcade.Window):
         self.asteroids_timer_seconds -= delta_time
 
         # Make new asteroid if the right amount of time has passed
-        if self.asteroids_timer <= 0:
+        if self.asteroids_timer_seconds <= 0:
             self.asteroids_list.append(Asteroid())
             self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
 
