@@ -52,7 +52,7 @@ class Asteroid(arcade.Sprite):
 
 class BonusUFO(arcade.Sprite):
 
-    # when the UFO wraps it say are sound
+    # when the UFO wraps it says a sound
     sound_wraps = arcade.load_sound("sounds/forceField_004.ogg")
 
     def __init__(self):
@@ -192,7 +192,7 @@ class PlayerShot(arcade.Sprite):
 
         # Removes/kills player shot if it moves longer than the range
         if self.distance_traveled > PLAYER_SHOT_RANGE:
-            PlayerShot.kill(self)
+            self.kill()
 
 
 class MyGame(arcade.Window):
