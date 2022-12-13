@@ -33,7 +33,7 @@ UFO_SPAWN_TIME_MAX = 35
 UFO_SPAWN_TIME_MIN = 80
 # Time between asteroids spawn
 ASTEROIDS_TIMER_SECONDS = 5
-
+SOUND_ON = True
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -53,7 +53,8 @@ class Asteroid(arcade.Sprite):
 class BonusUFO(arcade.Sprite):
 
     # when the UFO wraps it says a sound
-    sound_wraps = arcade.load_sound("sounds/forceField_004.ogg")
+    if SOUND_ON:
+        sound_wraps = arcade.load_sound("sounds/forcefield_004.ogg")
 
     def __init__(self):
         super().__init__(
@@ -161,13 +162,15 @@ class PlayerShot(arcade.Sprite):
     """
     A shot fired by the Player
     """
-    sound_fire = arcade.load_sound("sounds/laserLarge_000.mp3")
+    if SOUND_ON:
+        sound_fire = arcade.load_sound("sounds/laserlarge_000.mp3")
 
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
-        PlayerShot.sound_fire.play()
+        if SOUND_ON:
+            PlayerShot.sound_fire.play()
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
@@ -418,7 +421,7 @@ class MyGame(arcade.Window):
 
         # UFO wraps
         a_ufo_wrapped = self.screen_wrap(self.UFO_list)
-        if a_ufo_wrapped == True:
+        if a_ufo_wrapped == True and SOUND_ON:
             BonusUFO.sound_wraps.play()
 
         # Kill asteroids who collide with player and make player loose a life
