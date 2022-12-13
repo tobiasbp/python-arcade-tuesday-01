@@ -24,6 +24,7 @@ PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
+PLAYER_SHOT_RANGE = max(SCREEN_HEIGHT, SCREEN_WIDTH) * 1.5
 PLAYER_ROTATE_SPEED = 5
 PLAYER_MAX_SPEED = 7
 UFO_CHANGE_DIR_TIME_MAX = 10
@@ -51,7 +52,7 @@ class Asteroid(arcade.Sprite):
 
 class BonusUFO(arcade.Sprite):
 
-    # when the UFO wraps it say are sound
+    # when the UFO wraps it says a sound
     sound_wraps = arcade.load_sound("sounds/forceField_004.ogg")
 
     def __init__(self):
@@ -175,6 +176,7 @@ class PlayerShot(arcade.Sprite):
         self.center_y = my_player.center_y
         self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi/2)
         self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi/2)
+        self.distance_traveled = 0
 
     def update(self):
         """
@@ -185,8 +187,11 @@ class PlayerShot(arcade.Sprite):
         self.center_x += self.change_x
         self.center_y += self.change_y
 
-        # Remove shot when over top of screen
-        if self.bottom > SCREEN_HEIGHT:
+        # Updates how far player shot moved.
+        self.distance_traveled += arcade.get_distance(0, 0, self.change_x, self.change_y)
+
+        # Removes/kills player shot if it moves longer than the range
+        if self.distance_traveled > PLAYER_SHOT_RANGE:
             self.kill()
 
 
@@ -407,6 +412,9 @@ class MyGame(arcade.Window):
 
         # Player wraps
         self.screen_wrap([self.player_sprite])
+
+        # Shot wraps
+        self.screen_wrap(self.player_shot_list)
 
         # UFO wraps
         a_ufo_wrapped = self.screen_wrap(self.UFO_list)
