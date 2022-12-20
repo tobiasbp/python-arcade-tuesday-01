@@ -207,6 +207,7 @@ class MyGame(arcade.Window):
         self.player_shot_list = None
         self.asteroids_list = None
         self.UFO_list = None
+        self.emitters_list = None
 
         # Set up the player info
         self.player_sprite = None
@@ -266,12 +267,14 @@ class MyGame(arcade.Window):
         self.UFO_list = arcade.SpriteList()
         self.UFO_spawn_timer = 0
 
-
         # Create a Player object
         self.player_sprite = Player(
             center_x=PLAYER_START_X,
             center_y=PLAYER_START_Y
         )
+
+        # Player rocket emitter in variable
+        self.player_rocket = self.get_player_rocket(self.player_sprite)
 
     def on_draw(self):
         """
@@ -306,9 +309,26 @@ class MyGame(arcade.Window):
             "LIVES: {}".format(self.player_lives ),  # text to show
             10,                  # X position
             SCREEN_HEIGHT - 50,  # Y position
-            arcade.color.WHITE    # color of text
+            arcade.color.WHITE   # color of text
         )
 
+        # Draw player rocket
+        self.player_rocket.draw()
+
+
+    def get_player_rocket(self, player):
+        spinner = arcade.Emitter(
+            center_xy=(player.center_x, player.center_y - player.height/2),
+            # Use EmitBurst?
+            emit_controller=arcade.EmitterIntervalWithTime(0.025, 2.0),
+            particle_factory=lambda emitter: arcade.FadeParticle(
+                filename_or_texture = "images/Effects/fire05.png",
+                change_xy=(0, 6.0),
+                lifetime=0.2
+            )
+        )
+        spinner.angle = player.angle + 180
+        return spinner
 
     def screen_wrap(self, list_to_wrap):
         """
@@ -340,7 +360,7 @@ class MyGame(arcade.Window):
         Movement and game logic
         """
 
-        # Calculate player speed based on the keys pressed
+        # Calculate player speed based on the keys pressed 
         #self.player_sprite.change_x = 0
 
 
@@ -358,6 +378,7 @@ class MyGame(arcade.Window):
             print("PLAYER DIED!")
             exit(0)
 
+        # Subtract time from UFO_spawn_timer
         self.UFO_spawn_timer -= delta_time
 
         if self.UFO_spawn_timer <= 0:
@@ -374,7 +395,11 @@ class MyGame(arcade.Window):
         # Player rocket engine
         if self.up_pressed:
             self.player_sprite.player_thrust()
-        
+
+        # Engine follows player
+        self.player_rocket.center_x, self.player_rocket.center_y = self.player_sprite.position
+        self.player_rocket.angle = self.player_sprite.angle + 180
+        self.player_rocket.update()
 
         # Move player with joystick if present
         #if self.joystick:
@@ -394,13 +419,11 @@ class MyGame(arcade.Window):
             self.asteroids_list.append(Asteroid())
             self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
 
-
         # Update the asteroids
         self.asteroids_list.update()
 
         # Update the UFOs
         self.UFO_list.on_update(delta_time)
-
 
         # Asteroids wraps
         self.screen_wrap(self.asteroids_list)
