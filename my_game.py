@@ -33,7 +33,7 @@ UFO_SPAWN_TIME_MAX = 35
 UFO_SPAWN_TIME_MIN = 80
 # Time between asteroids spawn
 ASTEROIDS_TIMER_SECONDS = 5
-SOUND_ON = True
+SOUND_ON = False
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -359,12 +359,23 @@ class MyGame(arcade.Window):
                 s.kill()
                 u.kill()
 
-        # Do UFO and player collide?
+        # Do UFO and player collide? If so remove a life
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
-            self.player_sprite.kill()
-            print("PLAYER DIED!")
-            exit(0)
+            self.player_lives -= 1
+
+            if self.player_lives < 1:
+                self.setup()
+
+        # Kill asteroids who collide with player and make player loose a life
+        for a in self.player_sprite.collides_with_list(self.asteroids_list):
+            a.kill()
+            self.player_lives -= 1
+
+            # Restart game if player is dead
+            if self.player_lives < 1:
+                self.setup()
+
 
         self.UFO_spawn_timer -= delta_time
 
@@ -424,14 +435,7 @@ class MyGame(arcade.Window):
         if a_ufo_wrapped == True and SOUND_ON:
             BonusUFO.sound_wraps.play()
 
-        # Kill asteroids who collide with player and make player loose a life
-        for a in self.player_sprite.collides_with_list(self.asteroids_list):
-            a.kill()
-            self.player_lives -= 1
 
-            # Restart game if player is dead
-            if self.player_lives < 1:
-                self.setup()
 
     def on_key_press(self, key, modifiers):
         """
