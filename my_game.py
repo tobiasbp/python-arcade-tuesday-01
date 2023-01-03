@@ -274,7 +274,7 @@ class MyGame(arcade.Window):
         )
 
         # Player rocket emitter in variable
-        self.player_rocket = self.get_player_rocket(self.player_sprite)
+        self.player_rocket = None
 
     def on_draw(self):
         """
@@ -286,6 +286,10 @@ class MyGame(arcade.Window):
 
         # Draw the player shot
         self.player_shot_list.draw()
+
+        if self.player_rocket is not None:
+            # Draw player rocket
+            self.player_rocket.draw()
 
         # Draw the player sprite
         self.player_sprite.draw()
@@ -312,22 +316,16 @@ class MyGame(arcade.Window):
             arcade.color.WHITE   # color of text
         )
 
-        # Draw player rocket
-        self.player_rocket.draw()
-
-
     def get_player_rocket(self, player):
         spinner = arcade.Emitter(
             center_xy=(player.center_x, player.center_y - player.height/2),
-            # Use EmitBurst?
-            emit_controller=arcade.EmitterIntervalWithTime(0.025, 2.0),
-            particle_factory=lambda emitter: arcade.FadeParticle(
-                filename_or_texture = "images/Effects/fire05.png",
+            emit_controller=arcade.EmitterIntervalWithTime(0.005, 0.5),
+            particle_factory=lambda emitter: arcade.FadeParticle( 
+                filename_or_texture = arcade.make_circle_texture(random.randint(5, 7), arcade.color.BLUE),
                 change_xy=(0, 6.0),
-                lifetime=0.2
+                lifetime=0.13
             )
         )
-        spinner.angle = player.angle + 180
         return spinner
 
     def screen_wrap(self, list_to_wrap):
@@ -395,11 +393,13 @@ class MyGame(arcade.Window):
         # Player rocket engine
         if self.up_pressed:
             self.player_sprite.player_thrust()
+            self.player_rocket = self.get_player_rocket(self.player_sprite)
 
-        # Engine follows player
-        self.player_rocket.center_x, self.player_rocket.center_y = self.player_sprite.position
-        self.player_rocket.angle = self.player_sprite.angle + 180
-        self.player_rocket.update()
+        # Engine follows player position and angle
+        if self.player_rocket is not None:
+            self.player_rocket.center_x, self.player_rocket.center_y = self.player_sprite.position
+            self.player_rocket.angle = (self.player_sprite.angle + 180) + random.randint(-20, 20)
+            self.player_rocket.update()
 
         # Move player with joystick if present
         #if self.joystick:
