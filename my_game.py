@@ -33,7 +33,7 @@ UFO_SPAWN_TIME_MAX = 35
 UFO_SPAWN_TIME_MIN = 80
 # Time between asteroids spawn
 ASTEROIDS_TIMER_SECONDS = 5
-SOUND_ON = False
+SOUND_ON = True
 
 FIRE_KEY = arcade.key.SPACE
 
