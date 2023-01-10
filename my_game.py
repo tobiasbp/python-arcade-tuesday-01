@@ -145,7 +145,7 @@ class Player(arcade.Sprite):
         if speed > PLAYER_MAX_SPEED:
             self.change_x /= speed/PLAYER_MAX_SPEED
             self.change_y /= speed/PLAYER_MAX_SPEED
-
+            print(speed)
 
 
     def update(self):
