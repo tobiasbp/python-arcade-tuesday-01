@@ -24,16 +24,23 @@ PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 4
+PLAYER_SHOT_RANGE = max(SCREEN_HEIGHT, SCREEN_WIDTH) * 1.5
 PLAYER_ROTATE_SPEED = 5
 PLAYER_MAX_SPEED = 7
+
+# Configure UFOs
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
 UFO_SPAWN_TIME_MAX = 35
 UFO_SPAWN_TIME_MIN = 80
-# Time between asteroids spawn
-ASTEROIDS_TIMER_SECONDS = inf
+
+# Configure asteroids
+ASTEROIDS_TIMER_SECONDS = inf # inf == spawn all asteroids at the same time
 ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
+
+# Play sound?
+SOUND_ON = True
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -53,8 +60,9 @@ class Asteroid(arcade.Sprite):
 
 class BonusUFO(arcade.Sprite):
 
-    # when the UFO wraps it say are sound
-    sound_wraps = arcade.load_sound("sounds/forceField_004.ogg")
+    # when the UFO wraps it says a sound
+    if SOUND_ON:
+        sound_wraps = arcade.load_sound("sounds/forcefield_004.ogg")
 
     def __init__(self):
         super().__init__(
@@ -162,13 +170,15 @@ class PlayerShot(arcade.Sprite):
     """
     A shot fired by the Player
     """
-    sound_fire = arcade.load_sound("sounds/laserLarge_000.mp3")
+    if SOUND_ON:
+        sound_fire = arcade.load_sound("sounds/laserlarge_000.mp3")
 
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
-        PlayerShot.sound_fire.play()
+        if SOUND_ON:
+            PlayerShot.sound_fire.play()
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
@@ -177,6 +187,7 @@ class PlayerShot(arcade.Sprite):
         self.center_y = my_player.center_y
         self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi/2)
         self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi/2)
+        self.distance_traveled = 0
 
     def update(self):
         """
@@ -187,8 +198,11 @@ class PlayerShot(arcade.Sprite):
         self.center_x += self.change_x
         self.center_y += self.change_y
 
-        # Remove shot when over top of screen
-        if self.bottom > SCREEN_HEIGHT:
+        # Updates how far player shot moved.
+        self.distance_traveled += arcade.get_distance(0, 0, self.change_x, self.change_y)
+
+        # Removes/kills player shot if it moves longer than the range
+        if self.distance_traveled > PLAYER_SHOT_RANGE:
             self.kill()
 
 
@@ -354,12 +368,23 @@ class MyGame(arcade.Window):
                 s.kill()
                 u.kill()
 
-        # Do UFO and player collide?
+        # Do UFO and player collide? If so remove a life
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
-            self.player_sprite.kill()
-            print("PLAYER DIED!")
-            exit(0)
+            self.player_lives -= 1
+
+            if self.player_lives < 1:
+                self.setup()
+
+        # Kill asteroids who collide with player and make player loose a life
+        for a in self.player_sprite.collides_with_list(self.asteroids_list):
+            a.kill()
+            self.player_lives -= 1
+
+            # Restart game if player is dead
+            if self.player_lives < 1:
+                self.setup()
+
 
         self.UFO_spawn_timer -= delta_time
 
@@ -411,19 +436,15 @@ class MyGame(arcade.Window):
         # Player wraps
         self.screen_wrap([self.player_sprite])
 
+        # Shot wraps
+        self.screen_wrap(self.player_shot_list)
+
         # UFO wraps
         a_ufo_wrapped = self.screen_wrap(self.UFO_list)
-        if a_ufo_wrapped == True:
+        if a_ufo_wrapped == True and SOUND_ON:
             BonusUFO.sound_wraps.play()
 
-        # Kill asteroids who collide with player and make player loose a life
-        for a in self.player_sprite.collides_with_list(self.asteroids_list):
-            a.kill()
-            self.player_lives -= 1
 
-            # Restart game if player is dead
-            if self.player_lives < 1:
-                self.setup()
 
     def on_key_press(self, key, modifiers):
         """
