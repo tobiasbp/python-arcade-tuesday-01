@@ -33,7 +33,7 @@ UFO_SPAWN_TIME_MAX = 35
 UFO_SPAWN_TIME_MIN = 80
 # Time between asteroids spawn
 ASTEROIDS_TIMER_SECONDS = 5
-SOUND_ON = True
+SOUND_ON = False
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -145,7 +145,7 @@ class Player(arcade.Sprite):
         if speed > PLAYER_MAX_SPEED:
             self.change_x /= speed/PLAYER_MAX_SPEED
             self.change_y /= speed/PLAYER_MAX_SPEED
-            print(speed)
+
 
 
     def update(self):
@@ -315,7 +315,7 @@ class GameView(arcade.View):
             SCREEN_HEIGHT - 50,  # Y position
             arcade.color.WHITE    # color of text
         )
-    def GameOver(self):
+    def game_over(self):
         menu_view = GameOverView()
         self.window.show_view(menu_view)
 
@@ -362,7 +362,7 @@ class GameView(arcade.View):
             self.player_lives -= 1
 
             if self.player_lives < 1:
-                self.GameOver()
+                self.game_over()
 
         # Kill asteroids who collide with player and make player loose a life
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
@@ -371,14 +371,13 @@ class GameView(arcade.View):
 
             # Restart game if player is dead
             if self.player_lives < 1:
-                self.GameOver()
+                self.game_over()
 
 
         self.UFO_spawn_timer -= delta_time
 
         if self.UFO_spawn_timer <= 0:
             self.UFO_spawn_timer = random.randint(UFO_CHANGE_DIR_TIME_MIN,UFO_SPAWN_TIME_MAX)
-            # print(self.UFO_spawn_timer)
             self.UFO_list.append(BonusUFO())
 
         # Move player with keyboard
