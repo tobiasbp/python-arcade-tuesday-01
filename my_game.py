@@ -31,8 +31,8 @@ PLAYER_MAX_SPEED = 7
 # Configure UFOs
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
-UFO_SPAWN_TIME_MAX = 35
-UFO_SPAWN_TIME_MIN = 80
+UFO_SPAWN_TIME_MAX = 10
+UFO_SPAWN_TIME_MIN = 1000
 
 # Configure asteroids
 ASTEROIDS_TIMER_SECONDS = inf # inf == spawn all asteroids at the same time
@@ -153,7 +153,7 @@ class Player(arcade.Sprite):
         if speed > PLAYER_MAX_SPEED:
             self.change_x /= speed/PLAYER_MAX_SPEED
             self.change_y /= speed/PLAYER_MAX_SPEED
-            print(speed)
+
 
 
     def update(self):
