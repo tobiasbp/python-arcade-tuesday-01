@@ -8,7 +8,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 """
 
 import arcade
-from math import sin, cos, pi, sqrt
+from math import sin, cos, pi, sqrt, inf
 import random
 
 SPRITE_SCALING = 0.5
@@ -27,12 +27,19 @@ PLAYER_SHOT_SPEED = 4
 PLAYER_SHOT_RANGE = max(SCREEN_HEIGHT, SCREEN_WIDTH) * 1.5
 PLAYER_ROTATE_SPEED = 5
 PLAYER_MAX_SPEED = 7
+
+# Configure UFOs
 UFO_CHANGE_DIR_TIME_MAX = 10
 UFO_CHANGE_DIR_TIME_MIN = 2
 UFO_SPAWN_TIME_MAX = 35
 UFO_SPAWN_TIME_MIN = 80
-# Time between asteroids spawn
-ASTEROIDS_TIMER_SECONDS = 5
+
+# Configure asteroids
+ASTEROIDS_TIMER_SECONDS = inf # inf == spawn all asteroids at the same time
+ASTEROIDS_SPEED = 1
+ASTEROIDS_PER_LEVEL = 5
+
+# Play sound?
 SOUND_ON = True
 
 FIRE_KEY = arcade.key.SPACE
@@ -40,15 +47,16 @@ FIRE_KEY = arcade.key.SPACE
 class Asteroid(arcade.Sprite):
 
     def __init__(self):
+
         super().__init__(
-            center_x=SCREEN_WIDTH/2,
-            center_y=SCREEN_HEIGHT/2,
+            center_x = random.randint(0, SCREEN_WIDTH),
+            center_y = random.randint(0, SCREEN_HEIGHT),
             filename="images/Meteors/meteorBrown_big1.png",
             scale=SPRITE_SCALING
         )
+        self.angle = random.randint(1, 360)
+        self.forward(ASTEROIDS_SPEED)
 
-        self.change_x = -0.5
-        self.change_y = -0.5
 
 class BonusUFO(arcade.Sprite):
 
@@ -265,7 +273,8 @@ class MyGame(arcade.Window):
         # Asteroid list
         self.asteroids_list = arcade.SpriteList()
 
-        self.asteroids_list.append(Asteroid())
+        for i in range(ASTEROIDS_PER_LEVEL):
+            self.asteroids_list.append(Asteroid())
 
         # Time between asteroid spawn
         self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
