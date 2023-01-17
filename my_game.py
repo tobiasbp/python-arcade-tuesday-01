@@ -205,19 +205,17 @@ class PlayerShot(arcade.Sprite):
         if self.distance_traveled > PLAYER_SHOT_RANGE:
             self.kill()
 
+class GameView(arcade.View):
 
-class MyGame(arcade.Window):
     """
     Main application class.
     """
 
-    def __init__(self, width, height):
+    def on_show_view(self):
+
         """
         Initializer
         """
-
-        # Call the parent class initializer
-        super().__init__(width, height)
 
         # Variable that will hold a list of shots fired by the player
         self.player_shot_list = None
@@ -260,6 +258,7 @@ class MyGame(arcade.Window):
             #self.joystick.
         # Set the background color
         arcade.set_background_color(BACKGROUND_COLOR)
+        self.setup()
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -325,7 +324,9 @@ class MyGame(arcade.Window):
             SCREEN_HEIGHT - 50,  # Y position
             arcade.color.WHITE    # color of text
         )
-
+    def game_over(self):
+        menu_view = GameOverView()
+        self.window.show_view(menu_view)
 
     def screen_wrap(self, list_to_wrap):
         """
@@ -357,10 +358,6 @@ class MyGame(arcade.Window):
         Movement and game logic
         """
 
-        # Calculate player speed based on the keys pressed
-        #self.player_sprite.change_x = 0
-
-
         # Do player_shot and UFO collide?
         for s in self.player_shot_list:
             for u in s.collides_with_list(self.UFO_list):
@@ -374,7 +371,7 @@ class MyGame(arcade.Window):
             self.player_lives -= 1
 
             if self.player_lives < 1:
-                self.setup()
+                self.game_over()
 
         # Kill asteroids who collide with player and make player loose a life
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
@@ -383,14 +380,13 @@ class MyGame(arcade.Window):
 
             # Restart game if player is dead
             if self.player_lives < 1:
-                self.setup()
+                self.game_over()
 
 
         self.UFO_spawn_timer -= delta_time
 
         if self.UFO_spawn_timer <= 0:
             self.UFO_spawn_timer = random.randint(UFO_CHANGE_DIR_TIME_MIN,UFO_SPAWN_TIME_MAX)
-            # print(self.UFO_spawn_timer)
             self.UFO_list.append(BonusUFO())
 
         # Move player with keyboard
@@ -495,14 +491,51 @@ class MyGame(arcade.Window):
 
     def on_joyhat_motion(self, joystick, hat_x, hat_y):
         print("Joystick hat ({}, {})".format(hat_x, hat_y))
+class MenuView(arcade.View):
+
+    def on_show_view(self):
+        arcade.set_background_color(arcade.color.PINK)
+
+    def on_draw(self):
+        self.clear()
+        arcade.draw_text(
+            "omg start the game by clicking any key",
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2,
+            arcade.color.WHITE,
+            font_size=30,
+            anchor_x="center"
+        )
+
+
+    def on_key_press(self, key, _modifiers):
+        game_view = GameView()
+        self.window.show_view(game_view)
+
+
+
+class GameOverView(arcade.View):
+    def on_show_view(self):
+        arcade.set_background_color(arcade.color.PASTEL_PURPLE)
+
+    def on_draw(self):
+        self.clear()
+        arcade.draw_text("GAME OVER! u lost losr, click any key to start over", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.LEMON,20, anchor_x="center")
+
+
+    def on_key_press(self, key, _modifiers):
+        menu_view = MenuView()
+        self.window.show_view(menu_view)
+
 
 def main():
     """
     Main method
     """
 
-    window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
-    window.setup()
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Kære dagbog, i dag har jeg fri fra jobsamtale. Jeg er megeti godt humør,fornøjet,frejdig,frimodig,fro,henrykt,lykkelig og salig.")
+    menu_view = MenuView()
+    window.show_view(menu_view)
     arcade.run()
 
 
