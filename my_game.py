@@ -143,6 +143,7 @@ class Player(arcade.Sprite):
         # Pass arguments to class arcade.Sprite
         super().__init__(**kwargs)
         self.score = 0
+        self.lives = PLAYER_LIVES
 
     def player_thrust(self):
         self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
@@ -224,7 +225,6 @@ class GameView(arcade.View):
 
         # Set up the player info
         self.player_sprite = None
-        self.player_lives = None
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -262,9 +262,6 @@ class GameView(arcade.View):
 
     def setup(self):
         """ Set up the game and initialize the variables. """
-
-        # No of lives
-        self.player_lives = PLAYER_LIVES
 
         # Sprite lists
         self.player_shot_list = arcade.SpriteList()
@@ -319,7 +316,7 @@ class GameView(arcade.View):
 
         # Draw player lives
         arcade.draw_text(
-            "LIVES: {}".format(self.player_lives ),  # text to show
+            "LIVES: {}".format(self.player_sprite.lives ),  # text to show
             10,                  # X position
             SCREEN_HEIGHT - 50,  # Y position
             arcade.color.WHITE    # color of text
@@ -368,18 +365,18 @@ class GameView(arcade.View):
         # Do UFO and player collide? If so remove a life
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
-            self.player_lives -= 1
+            self.player_sprite.lives -= 1
 
-            if self.player_lives < 1:
+            if self.player_sprite.lives < 1:
                 self.game_over()
 
         # Kill asteroids who collide with player and make player loose a life
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
-            self.player_lives -= 1
+            self.player_sprite.lives -= 1
 
             # Restart game if player is dead
-            if self.player_lives < 1:
+            if self.player_sprite.lives < 1:
                 self.game_over()
 
 
