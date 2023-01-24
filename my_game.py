@@ -40,7 +40,7 @@ ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
 
 # Play sound?
-SOUND_ON = True
+SOUND_ON = False
 
 FIRE_KEY = arcade.key.SPACE
 
@@ -226,6 +226,12 @@ class GameView(arcade.View):
         self.player_sprite = None
         self.player_lives = None
 
+        self.mute_icon = arcade.Sprite(
+            filename="images/Lasers/laserGreen07.png",
+            center_y=SCREEN_HEIGHT-SCREEN_HEIGHT/10,
+            center_x=SCREEN_WIDTH-SCREEN_WIDTH/15
+        )
+
         # Track the current state of what key is pressed
         self.left_pressed = False
         self.right_pressed = False
@@ -308,6 +314,10 @@ class GameView(arcade.View):
 
         # Draw UFO
         self.UFO_list.draw()
+
+        # Draw mute icon
+        self.mute_icon.draw()
+
 
         # Draw players score on screen
         arcade.draw_text(
