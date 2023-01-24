@@ -144,6 +144,8 @@ class Player(arcade.Sprite):
         super().__init__(**kwargs)
         self.score = 0
         self.lives = PLAYER_LIVES
+    def dies(self):
+        self.lives -= 1
 
     def player_thrust(self):
         self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
@@ -365,7 +367,7 @@ class GameView(arcade.View):
         # Do UFO and player collide? If so remove a life
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
-            self.player_sprite.lives -= 1
+            self.player_sprite.dies()
 
             if self.player_sprite.lives < 1:
                 self.game_over()
@@ -373,7 +375,7 @@ class GameView(arcade.View):
         # Kill asteroids who collide with player and make player loose a life
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
-            self.player_sprite.lives -= 1
+            self.player_sprite.dies()
 
             # Restart game if player is dead
             if self.player_sprite.lives < 1:
