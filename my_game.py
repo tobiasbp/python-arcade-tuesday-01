@@ -207,7 +207,6 @@ class MyGame(arcade.Window):
         self.player_shot_list = None
         self.asteroids_list = None
         self.UFO_list = None
-        self.emitters_list = None
 
         # Set up the player info
         self.player_sprite = None
@@ -324,7 +323,7 @@ class MyGame(arcade.Window):
         emitter = arcade.Emitter(
             center_xy=(player.center_x, player.center_y - player.height/2),
             emit_controller= emit_controller,
-            particle_factory=lambda emitter: arcade.FadeParticle( 
+            particle_factory=lambda emitter: arcade.FadeParticle(
                 filename_or_texture = arcade.make_circle_texture(random.randint(7, 20), arcade.color.CYAN),
                 change_xy=(0, 6.0),
                 lifetime=0.13
