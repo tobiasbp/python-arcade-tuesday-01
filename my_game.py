@@ -274,6 +274,7 @@ class MyGame(arcade.Window):
 
         # Player rocket emitter in variable
         self.player_rocket_emitter = None
+        #self.player_rocket_emitter = arcade.EmitterIntervalWithCount(0, 0)
 
         # Player rocket emitter_controller in variable
         self.player_rocket_controller = None
@@ -290,7 +291,7 @@ class MyGame(arcade.Window):
         self.player_shot_list.draw()
 
         if self.player_rocket_emitter is not None:
-            # Draw player rocket
+        # Draw player rocket
             self.player_rocket_emitter.draw()
 
         # Draw the player sprite
@@ -400,6 +401,7 @@ class MyGame(arcade.Window):
             # Only make rocket_controller if one doesn't already exist
             if self.player_rocket_emitter is None:
                 self.player_rocket_emitter, self.player_rocket_controller = self.get_player_rocket(self.player_sprite)
+
 
             # Make new rocket_controller when the old is finished
             if self.player_rocket_controller.is_complete():
