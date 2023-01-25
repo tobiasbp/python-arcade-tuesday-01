@@ -273,7 +273,7 @@ class MyGame(arcade.Window):
         )
 
         # Player rocket emitter in variable
-        self.player_rocket = None
+        self.player_rocket_emitter = None
 
         # Player rocket emitter_controller in variable
         self.player_rocket_controller = None
@@ -289,9 +289,9 @@ class MyGame(arcade.Window):
         # Draw the player shot
         self.player_shot_list.draw()
 
-        if self.player_rocket is not None:
+        if self.player_rocket_emitter is not None:
             # Draw player rocket
-            self.player_rocket.draw()
+            self.player_rocket_emitter.draw()
 
         # Draw the player sprite
         self.player_sprite.draw()
@@ -398,18 +398,18 @@ class MyGame(arcade.Window):
             self.player_sprite.player_thrust()
 
             # Only make rocket_controller if one doesn't already exist
-            if self.player_rocket is None:
-                self.player_rocket, self.player_rocket_controller = self.get_player_rocket(self.player_sprite)
+            if self.player_rocket_emitter is None:
+                self.player_rocket_emitter, self.player_rocket_controller = self.get_player_rocket(self.player_sprite)
 
             # Make new rocket_controller when the old is finished
             if self.player_rocket_controller.is_complete():
-                self.player_rocket.rate_factory = arcade.EmitterIntervalWithCount(0.005, 30)
+                self.player_rocket_emitter.rate_factory = arcade.EmitterIntervalWithCount(0.005, 30)
 
         # Engine follows player position and angle
-        if self.player_rocket is not None:
-            self.player_rocket.center_x, self.player_rocket.center_y = self.player_sprite.position
-            self.player_rocket.angle = (self.player_sprite.angle + 180) + random.randint(-15, 15)
-            self.player_rocket.update()
+        if self.player_rocket_emitter is not None:
+            self.player_rocket_emitter.center_x, self.player_rocket_emitter.center_y = self.player_sprite.position
+            self.player_rocket_emitter.angle = (self.player_sprite.angle + 180) + random.randint(-15, 15)
+            self.player_rocket_emitter.update()
 
         # Move player with joystick if present
         #if self.joystick:
