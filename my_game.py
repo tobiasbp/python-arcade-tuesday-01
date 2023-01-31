@@ -128,6 +128,10 @@ class Player(arcade.Sprite):
     """
     The player
     """
+    if SOUND_ON:
+        sound_dies = arcade.load_sound("sounds/explosionCrunch_000.ogg")
+    else:
+        sound_dies = None
 
     def __init__(self, **kwargs):
         """
@@ -143,6 +147,23 @@ class Player(arcade.Sprite):
         # Pass arguments to class arcade.Sprite
         super().__init__(**kwargs)
         self.score = 0
+        self.lives = PLAYER_LIVES
+
+
+    def dies(self):
+        """
+        Return True if player has no more lives, otherwise return False
+        """
+        self.lives -= 1
+
+        if SOUND_ON:
+            Player.sound_dies.play()
+
+        if self.lives < 1:
+            return True
+        else:
+            return False
+
 
     def player_thrust(self):
         self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
@@ -173,12 +194,14 @@ class PlayerShot(arcade.Sprite):
     if SOUND_ON:
         sound_fire = arcade.load_sound("sounds/laserlarge_000.mp3")
 
+
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
         if SOUND_ON:
             PlayerShot.sound_fire.play()
+
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
@@ -224,7 +247,6 @@ class GameView(arcade.View):
 
         # Set up the player info
         self.player_sprite = None
-        self.player_lives = None
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -262,9 +284,6 @@ class GameView(arcade.View):
 
     def setup(self):
         """ Set up the game and initialize the variables. """
-
-        # No of lives
-        self.player_lives = PLAYER_LIVES
 
         # Sprite lists
         self.player_shot_list = arcade.SpriteList()
@@ -319,7 +338,7 @@ class GameView(arcade.View):
 
         # Draw player lives
         arcade.draw_text(
-            "LIVES: {}".format(self.player_lives ),  # text to show
+            "LIVES: {}".format(self.player_sprite.lives ),  # text to show
             10,                  # X position
             SCREEN_HEIGHT - 50,  # Y position
             arcade.color.WHITE    # color of text
@@ -368,18 +387,18 @@ class GameView(arcade.View):
         # Do UFO and player collide? If so remove a life
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
-            self.player_lives -= 1
+            self.player_sprite.dies()
 
-            if self.player_lives < 1:
+            if self.player_sprite.lives < 1:
                 self.game_over()
 
         # Kill asteroids who collide with player and make player loose a life
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
-            self.player_lives -= 1
+            self.player_sprite.dies()
 
             # Restart game if player is dead
-            if self.player_lives < 1:
+            if self.player_sprite.lives < 1:
                 self.game_over()
 
 
