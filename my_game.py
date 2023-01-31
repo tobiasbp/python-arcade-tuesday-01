@@ -152,7 +152,7 @@ class Player(arcade.Sprite):
 
     def dies(self):
         """
-        return true if player has no more lives and otherwise false
+        Return True if player has no more lives, otherwise return False
         """
         self.lives -= 1
 
