@@ -148,10 +148,22 @@ class Player(arcade.Sprite):
         super().__init__(**kwargs)
         self.score = 0
         self.lives = PLAYER_LIVES
+
+
     def dies(self):
+        """
+        return true if player has no more lives and otherwise false
+        """
         self.lives -= 1
+
         if SOUND_ON:
             Player.sound_dies.play()
+
+        if self.lives < 1:
+            return True
+        else:
+            return False
+
 
     def player_thrust(self):
         self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
