@@ -274,10 +274,9 @@ class MyGame(arcade.Window):
 
         # Player rocket emitter in variable
         self.player_rocket_emitter = None
-        #self.player_rocket_emitter = arcade.EmitterIntervalWithCount(0, 0)
 
         # Player rocket emitter_controller in variable
-        self.player_rocket_controller = None
+        self.player_rocket_controller = arcade.EmitterIntervalWithCount(0, 0)
 
     def on_draw(self):
         """
