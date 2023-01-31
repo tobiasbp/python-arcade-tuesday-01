@@ -128,6 +128,10 @@ class Player(arcade.Sprite):
     """
     The player
     """
+    if SOUND_ON:
+        sound_dies = arcade.load_sound("sounds/explosionCrunch_000.ogg")
+    else:
+        sound_dies = None
 
     def __init__(self, **kwargs):
         """
@@ -146,6 +150,8 @@ class Player(arcade.Sprite):
         self.lives = PLAYER_LIVES
     def dies(self):
         self.lives -= 1
+        if SOUND_ON:
+            Player.sound_dies.play()
 
     def player_thrust(self):
         self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
@@ -176,12 +182,14 @@ class PlayerShot(arcade.Sprite):
     if SOUND_ON:
         sound_fire = arcade.load_sound("sounds/laserlarge_000.mp3")
 
+
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
         if SOUND_ON:
             PlayerShot.sound_fire.play()
+
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
