@@ -288,11 +288,11 @@ class GameView(arcade.View):
             center_y=PLAYER_START_Y
         )
 
-        # Player rocket emitter in variable
-        self.player_rocket_emitter = None
-
         # Player rocket emitter_controller in variable
         self.player_rocket_controller = arcade.EmitterIntervalWithCount(0, 0)
+        
+        # Player rocket emitter in variable
+        self.player_rocket_emitter = None
 
     def on_draw(self):
         """
@@ -305,8 +305,8 @@ class GameView(arcade.View):
         # Draw the player shot
         self.player_shot_list.draw()
 
-        if self.player_rocket_emitter is not None:
         # Draw player rocket
+        if self.player_rocket_emitter is not None:
             self.player_rocket_emitter.draw()
 
         # Draw the player sprite
@@ -335,6 +335,9 @@ class GameView(arcade.View):
         )
 
     def get_player_rocket(self, player):
+        """
+        Returns emitter
+        """
         emit_controller = arcade.EmitterIntervalWithCount(0, 0)
         emitter = arcade.Emitter(
             center_xy=(player.center_x, player.center_y - player.height/2),
@@ -345,7 +348,7 @@ class GameView(arcade.View):
                 lifetime=0.13
             )
         )
-        return emitter, emit_controller
+        return emitter
 
     def game_over(self):
         menu_view = GameOverView()
@@ -425,8 +428,7 @@ class GameView(arcade.View):
 
             # Only make rocket_controller if one doesn't already exist
             if self.player_rocket_emitter is None:
-                self.player_rocket_emitter, self.player_rocket_controller = self.get_player_rocket(self.player_sprite)
-
+                self.player_rocket_emitter = self.get_player_rocket(self.player_sprite)
 
             # Make new rocket_controller when the old is finished
             if self.player_rocket_controller.is_complete():
