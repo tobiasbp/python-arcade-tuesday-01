@@ -288,7 +288,7 @@ class GameView(arcade.View):
             center_y=PLAYER_START_Y
         )
 
-        # Player rocket emitter_controller in variable
+        # Empty emitter controller in player_rocket_controller variable for later use (in up_pressed)
         self.player_rocket_controller = arcade.EmitterIntervalWithCount(0, 0)
         
         # Player rocket emitter in variable
