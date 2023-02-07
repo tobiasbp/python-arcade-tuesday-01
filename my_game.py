@@ -338,7 +338,7 @@ class GameView(arcade.View):
         """
         Returns emitter
         """
-        emit_controller = arcade.EmitterIntervalWithCount(0, 0)
+        emit_controller = self.player_rocket_controller
         emitter = arcade.Emitter(
             center_xy=(player.center_x, player.center_y - player.height/2),
             emit_controller= emit_controller,
