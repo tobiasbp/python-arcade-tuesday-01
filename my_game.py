@@ -178,15 +178,17 @@ class PlayerShot(arcade.Sprite):
         sound_fire = arcade.load_sound("sounds/laserlarge_000.mp3")
     except FileNotFoundError:
         print("Could not load sound: sounds/laserlarge_000.mp3")
-        sound_wraps = None
+        sound_fire = None
 
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
 
-        if BonusUFO.sound_wraps is not None:
-            PlayerShot.sound_fire.play()
+        global SOUND_ON
+        if SOUND_ON is True:
+            if PlayerShot.sound_fire is not None:
+                PlayerShot.sound_fire.play()
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
@@ -466,8 +468,9 @@ class GameView(arcade.View):
         # UFO wraps
         a_ufo_wrapped = self.screen_wrap(self.UFO_list)
 
-        if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
-            BonusUFO.sound_wraps.play()
+        if SOUND_ON is True:
+            if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
+                BonusUFO.sound_wraps.play()
 
 
 
