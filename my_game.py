@@ -43,6 +43,7 @@ ASTEROIDS_PER_LEVEL = 5
 SOUND_ON = True
 
 FIRE_KEY = arcade.key.SPACE
+MUTE_KEY = arcade.key.M
 
 class Asteroid(arcade.Sprite):
 
@@ -61,8 +62,11 @@ class Asteroid(arcade.Sprite):
 class BonusUFO(arcade.Sprite):
 
     # when the UFO wraps it says a sound
-    if SOUND_ON:
+    try:
         sound_wraps = arcade.load_sound("sounds/forcefield_004.ogg")
+    except FileNotFoundError:
+        print("Could not load sound: sounds/forcefield_004.ogg")
+        sound_wraps = None
 
     def __init__(self):
         super().__init__(
@@ -191,16 +195,21 @@ class PlayerShot(arcade.Sprite):
     """
     A shot fired by the Player
     """
-    if SOUND_ON:
+    try:
         sound_fire = arcade.load_sound("sounds/laserlarge_000.mp3")
+    except FileNotFoundError:
+        print("Could not load sound: sounds/laserlarge_000.mp3")
+        sound_fire = None
 
 
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
-        if SOUND_ON:
-            PlayerShot.sound_fire.play()
+        global SOUND_ON
+        if SOUND_ON is True:
+            if PlayerShot.sound_fire is not None:
+                PlayerShot.sound_fire.play()
 
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
@@ -247,6 +256,19 @@ class GameView(arcade.View):
 
         # Set up the player info
         self.player_sprite = None
+
+        self.mute_icon = arcade.Sprite(
+            filename="images/Icons/audioOff.png",
+            center_y=SCREEN_HEIGHT-SCREEN_HEIGHT/10,
+            center_x=SCREEN_WIDTH-SCREEN_WIDTH/15
+        )
+
+        self.unmute_icon = arcade.Sprite(
+            filename="images/Icons/audioOn.png",
+            center_y=SCREEN_HEIGHT-SCREEN_HEIGHT/10,
+            center_x=SCREEN_WIDTH-SCREEN_WIDTH/15
+        )
+
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -327,6 +349,13 @@ class GameView(arcade.View):
 
         # Draw UFO
         self.UFO_list.draw()
+
+        # Draw mute icon
+        if SOUND_ON is False:
+            self.mute_icon.draw()
+        else:
+            self.unmute_icon.draw()
+
 
         # Draw players score on screen
         arcade.draw_text(
@@ -456,8 +485,10 @@ class GameView(arcade.View):
 
         # UFO wraps
         a_ufo_wrapped = self.screen_wrap(self.UFO_list)
-        if a_ufo_wrapped == True and SOUND_ON:
-            BonusUFO.sound_wraps.play()
+
+        if SOUND_ON is True:
+            if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
+                BonusUFO.sound_wraps.play()
 
 
 
@@ -482,6 +513,10 @@ class GameView(arcade.View):
             )
 
             self.player_shot_list.append(new_shot)
+
+        global SOUND_ON
+        if key == MUTE_KEY:
+            SOUND_ON = not SOUND_ON
 
     def on_key_release(self, key, modifiers):
         """
