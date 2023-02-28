@@ -132,9 +132,9 @@ class Player(arcade.Sprite):
     """
     The player
     """
-    if SOUND_ON:
+    try:
         sound_dies = arcade.load_sound("sounds/explosionCrunch_000.ogg")
-    else:
+    except FileNotFoundError:
         sound_dies = None
 
     def __init__(self, **kwargs):
@@ -160,14 +160,16 @@ class Player(arcade.Sprite):
         """
         self.lives -= 1
 
-        if SOUND_ON:
-            Player.sound_dies.play()
+        global SOUND_ON
+
+        if SOUND_ON is True:
+            if Player.sound_dies is not None:
+                Player.sound_dies.play()
 
         if self.lives < 1:
             return True
         else:
             return False
-
 
     def player_thrust(self):
         self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
