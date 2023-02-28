@@ -57,7 +57,6 @@ class Asteroid(arcade.Sprite):
         self.angle = random.randint(1, 360)
         self.forward(ASTEROIDS_SPEED)
 
-
 class BonusUFO(arcade.Sprite):
 
     # when the UFO wraps it says a sound
@@ -205,8 +204,43 @@ class PlayerShot(arcade.Sprite):
         if self.distance_traveled > PLAYER_SHOT_RANGE:
             self.kill()
 
-class GameView(arcade.View):
+class StoppableEmitter():
+    """
+    It is possible to start and stop this emitter
+    """
+    def __init__(self, target: arcade.Sprite):
+        self.target = target
+        self.start_emit_controller = arcade.EmitterIntervalWithCount(0,0)
+        self.stop_emit_controller = arcade.EmitterIntervalWithCount(0.005, 30)
 
+        self.emitter = arcade.Emitter(
+            center_xy=(target.center_x, target.center_y),
+            emit_controller = self.stop_emit_controller,
+            particle_factory=lambda emitter: arcade.FadeParticle(
+                filename_or_texture = arcade.make_circle_texture(random.randint(7, 20), arcade.color.CYAN),
+                change_xy=(0, 6.0),
+                lifetime=0.13
+            )
+        )
+
+    def player_rocket_stop(self):
+        """
+        Start emitter
+        """
+        self.player_rocket_emitter.rate_factory = self.start_emit_controller
+
+    def player_rocket_stop(self):
+        """
+        Stop emitter
+        """
+        self.emitter = self.stop_emit_controller
+
+    def on_update(self, target):
+        self.emitter.center_x, self.emitter.center_y = self.target.position
+        self.emitter.angle = (self.target.angle + 180) + random.randint(-15, 15)
+        #self.player_rocket_emitter.update()
+
+class GameView(arcade.View):
     """
     Main application class.
     """
@@ -288,10 +322,10 @@ class GameView(arcade.View):
             center_y=PLAYER_START_Y
         )
 
-        # Empty emitter controller in player_rocket_controller variable for later use (in up_pressed)
-        self.player_rocket_controller = arcade.EmitterIntervalWithCount(0, 0)
+        # This emitter_controller emits nothing. It's used when the rocket emitter is not in use. 
+        self.player_rocket_controller = arcade.EmitterIntervalWithCount(0,0)
         
-        # Player rocket emitter in variable
+        # Empty emitter for hosting player emitter later
         self.player_rocket_emitter = None
 
     def on_draw(self):
@@ -333,22 +367,6 @@ class GameView(arcade.View):
             SCREEN_HEIGHT - 50,  # Y position
             arcade.color.WHITE   # color of text
         )
-
-    def get_player_rocket(self, player):
-        """
-        Returns emitter
-        """
-        emit_controller = self.player_rocket_controller
-        emitter = arcade.Emitter(
-            center_xy=(player.center_x, player.center_y - player.height/2),
-            emit_controller= emit_controller,
-            particle_factory=lambda emitter: arcade.FadeParticle(
-                filename_or_texture = arcade.make_circle_texture(random.randint(7, 20), arcade.color.CYAN),
-                change_xy=(0, 6.0),
-                lifetime=0.13
-            )
-        )
-        return emitter
 
     def game_over(self):
         menu_view = GameOverView()
@@ -426,19 +444,13 @@ class GameView(arcade.View):
         if self.up_pressed:
             self.player_sprite.player_thrust()
 
-            # Only make rocket_controller if one doesn't already exist
+            # Do not make rocket_eimtter, if one already exists
             if self.player_rocket_emitter is None:
                 self.player_rocket_emitter = self.get_player_rocket(self.player_sprite)
 
-            # Make new rocket_controller when the old is finished
+            # Keep emitting particles
             if self.player_rocket_controller.is_complete():
                 self.player_rocket_emitter.rate_factory = arcade.EmitterIntervalWithCount(0.005, 30)
-
-        # Engine follows player position and angle
-        if self.player_rocket_emitter is not None:
-            self.player_rocket_emitter.center_x, self.player_rocket_emitter.center_y = self.player_sprite.position
-            self.player_rocket_emitter.angle = (self.player_sprite.angle + 180) + random.randint(-15, 15)
-            self.player_rocket_emitter.update()
 
         # Move player with joystick if present
         #if self.joystick:
@@ -477,8 +489,6 @@ class GameView(arcade.View):
         a_ufo_wrapped = self.screen_wrap(self.UFO_list)
         if a_ufo_wrapped == True and SOUND_ON:
             BonusUFO.sound_wraps.play()
-
-
 
     def on_key_press(self, key, modifiers):
         """
@@ -529,6 +539,7 @@ class GameView(arcade.View):
 
     def on_joyhat_motion(self, joystick, hat_x, hat_y):
         print("Joystick hat ({}, {})".format(hat_x, hat_y))
+
 class MenuView(arcade.View):
 
     def on_show_view(self):
@@ -550,8 +561,6 @@ class MenuView(arcade.View):
         game_view = GameView()
         self.window.show_view(game_view)
 
-
-
 class GameOverView(arcade.View):
     def on_show_view(self):
         arcade.set_background_color(arcade.color.PASTEL_PURPLE)
@@ -565,7 +574,6 @@ class GameOverView(arcade.View):
         menu_view = MenuView()
         self.window.show_view(menu_view)
 
-
 def main():
     """
     Main method
@@ -575,7 +583,6 @@ def main():
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
-
 
 if __name__ == "__main__":
     main()
