@@ -204,14 +204,16 @@ class PlayerShot(arcade.Sprite):
         if self.distance_traveled > PLAYER_SHOT_RANGE:
             self.kill()
 
+
 class StoppableEmitter():
     """
     It is possible to start and stop this emitter
     """
     def __init__(self, target: arcade.Sprite):
+
         self.target = target
         self.start_emit_controller = arcade.EmitterIntervalWithCount(0,0)
-        self.stop_emit_controller = arcade.EmitterIntervalWithCount(0.005, 30)
+        self.stop_emit_controller = arcade.EmitterIntervalWithCount(0.005, 100)
 
         self.emitter = arcade.Emitter(
             center_xy=(target.center_x, target.center_y),
@@ -223,22 +225,23 @@ class StoppableEmitter():
             )
         )
 
-    def player_rocket_stop(self):
+    def start(self):
         """
         Start emitter
         """
-        self.player_rocket_emitter.rate_factory = self.start_emit_controller
+        self.emitter.rate_factory = self.start_emit_controller
 
-    def player_rocket_stop(self):
+    def stop(self):
         """
         Stop emitter
         """
-        self.emitter = self.stop_emit_controller
+        self.emitter.rate_factory = self.stop_emit_controller
 
-    def on_update(self, target):
+    def on_update(self):
         self.emitter.center_x, self.emitter.center_y = self.target.position
         self.emitter.angle = (self.target.angle + 180) + random.randint(-15, 15)
-        #self.player_rocket_emitter.update()
+        #self.emitter.update()
+
 
 class GameView(arcade.View):
     """
@@ -323,10 +326,14 @@ class GameView(arcade.View):
         )
 
         # This emitter_controller emits nothing. It's used when the rocket emitter is not in use. 
-        self.player_rocket_controller = arcade.EmitterIntervalWithCount(0,0)
+        #self.player_rocket_controller = arcade.EmitterIntervalWithCount(0,0)
         
         # Empty emitter for hosting player emitter later
-        self.player_rocket_emitter = None
+        #self.player_rocket_emitter = None
+
+        # Player rocket emitter
+        self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
+        self.player_rocket_emitter.start()
 
     def on_draw(self):
         """
@@ -340,8 +347,7 @@ class GameView(arcade.View):
         self.player_shot_list.draw()
 
         # Draw player rocket
-        if self.player_rocket_emitter is not None:
-            self.player_rocket_emitter.draw()
+        self.player_rocket_emitter.emitter.draw()
 
         # Draw the player sprite
         self.player_sprite.draw()
@@ -442,15 +448,17 @@ class GameView(arcade.View):
 
         # Player rocket engine
         if self.up_pressed:
-            self.player_sprite.player_thrust()
+            pass
+            #self.player_sprite.player_thrust()
+            #self.player_rocket_emitter.start_emitter()
 
             # Do not make rocket_eimtter, if one already exists
-            if self.player_rocket_emitter is None:
-                self.player_rocket_emitter = self.get_player_rocket(self.player_sprite)
+            #if self.player_rocket_emitter is None:
+            #    self.player_rocket_emitter = self.get_player_rocket(self.player_sprite)
 
             # Keep emitting particles
-            if self.player_rocket_controller.is_complete():
-                self.player_rocket_emitter.rate_factory = arcade.EmitterIntervalWithCount(0.005, 30)
+            #if self.player_rocket_controller.is_complete():
+            #    self.player_rocket_emitter.rate_factory = arcade.EmitterIntervalWithCount(0.005, 30)
 
         # Move player with joystick if present
         #if self.joystick:
@@ -475,6 +483,9 @@ class GameView(arcade.View):
 
         # Update the UFOs
         self.UFO_list.on_update(delta_time)
+
+        #Update player_rocket_emitter
+        #self.player_rocket_emitter.on_update()
 
         # Asteroids wraps
         self.screen_wrap(self.asteroids_list)
