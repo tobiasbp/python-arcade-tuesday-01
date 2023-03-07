@@ -10,6 +10,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 import arcade
 from math import sin, cos, pi, sqrt, inf
 import random
+from typing import Tuple
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK 
@@ -209,19 +210,32 @@ class StoppableEmitter():
     """
     It is possible to start and stop this emitter
     """
-    def __init__(self, target: arcade.Sprite):
+    def __init__(self,
+            target: arcade.Sprite,
+            particle_lifetime: float = 1.6,
+            noise: int = 10,
+            offset: Tuple[int] = (0, 6),
+            emit_interval: float = 0.01,
+            particle_count: int = 30,
+            start_alpa: int = 100):
 
         self.target = target
-        self.start_emit_controller = arcade.EmitterIntervalWithCount(0,0)
-        self.stop_emit_controller = arcade.EmitterIntervalWithCount(0.005, 100)
+        self.noise = noise
+        self.emit_interval = emit_interval
+        self.particle_count = particle_count
 
+        # Emit controller enters endless loop with an interval of 0
+        assert self.emit_interval > 0, "Emit interval must be greater than 0"
+
+        # An emitter with a controller which does not have particles to emit (it's off)
         self.emitter = arcade.Emitter(
-            center_xy=(target.center_x, target.center_y),
-            emit_controller = self.stop_emit_controller,
+            center_xy=target.position,
+            emit_controller = arcade.EmitterIntervalWithCount(self.emit_interval,0),
             particle_factory=lambda emitter: arcade.FadeParticle(
                 filename_or_texture = arcade.make_circle_texture(random.randint(7, 20), arcade.color.CYAN),
-                change_xy=(0, 6.0),
-                lifetime=0.13
+                change_xy=offset,
+                lifetime=particle_lifetime,
+                start_alpha=start_alpa
             )
         )
 
@@ -229,18 +243,18 @@ class StoppableEmitter():
         """
         Start emitter
         """
-        self.emitter.rate_factory = self.start_emit_controller
+        self.emitter.rate_factory = arcade.EmitterIntervalWithCount(self.emit_interval, self.particle_count)
 
     def stop(self):
         """
         Stop emitter
         """
-        self.emitter.rate_factory = self.stop_emit_controller
+        self.emitter.rate_factory = arcade.EmitterIntervalWithCount(self.emit_interval,0)
 
-    def on_update(self):
+    def update(self):
         self.emitter.center_x, self.emitter.center_y = self.target.position
-        self.emitter.angle = (self.target.angle + 180) + random.randint(-15, 15)
-        #self.emitter.update()
+        self.emitter.angle = (self.target.angle + 180) + random.randint(-1 * self.noise, self.noise)
+        self.emitter.update()
 
 
 class GameView(arcade.View):
@@ -333,7 +347,6 @@ class GameView(arcade.View):
 
         # Player rocket emitter
         self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
-        self.player_rocket_emitter.start()
 
     def on_draw(self):
         """
@@ -446,10 +459,13 @@ class GameView(arcade.View):
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.angle -= PLAYER_ROTATE_SPEED
 
-        # Player rocket engine
+
+        self.player_rocket_emitter.update()
+
         if self.up_pressed:
-            pass
-            #self.player_sprite.player_thrust()
+            self.player_sprite.player_thrust()
+            self.player_rocket_emitter.start()
+
             #self.player_rocket_emitter.start_emitter()
 
             # Do not make rocket_eimtter, if one already exists
