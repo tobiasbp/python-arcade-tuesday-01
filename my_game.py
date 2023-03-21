@@ -22,7 +22,7 @@ SCREEN_HEIGHT = 600
 PLAYER_LIVES = 3
 PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
-PLAYER_START_Y = 50
+PLAYER_START_Y = SCREEN_HEIGHT / 2
 PLAYER_SHOT_SPEED = 4
 PLAYER_SHOT_RANGE = max(SCREEN_HEIGHT, SCREEN_WIDTH) * 1.5
 PLAYER_ROTATE_SPEED = 5
@@ -158,6 +158,7 @@ class Player(arcade.Sprite):
         """
         Return True if player has no more lives, otherwise return False
         """
+
         self.lives -= 1
 
         global SOUND_ON
@@ -328,6 +329,30 @@ class GameView(arcade.View):
             center_y=PLAYER_START_Y
         )
 
+    def reset(self):
+        """
+        Resets game when player loses a live
+        """
+
+        self.player_sprite.center_x = PLAYER_START_X
+        self.player_sprite.center_y = PLAYER_START_Y
+
+        # Sprite lists
+        self.player_shot_list = arcade.SpriteList()
+
+        # Asteroid list
+        self.asteroids_list = arcade.SpriteList()
+
+        for i in range(ASTEROIDS_PER_LEVEL):
+            self.asteroids_list.append(Asteroid())
+
+        # Time between asteroid spawn
+        self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
+
+        # UFO list
+        self.UFO_list = arcade.SpriteList()
+        self.UFO_spawn_timer = 0
+
     def on_draw(self):
         """
         Render the screen.
@@ -416,6 +441,7 @@ class GameView(arcade.View):
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
             self.player_sprite.dies()
+            self.reset()
 
             if self.player_sprite.lives < 1:
                 self.game_over()
@@ -424,6 +450,7 @@ class GameView(arcade.View):
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
             self.player_sprite.dies()
+            self.reset()
 
             # Restart game if player is dead
             if self.player_sprite.lives < 1:
