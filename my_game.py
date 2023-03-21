@@ -212,8 +212,8 @@ class StoppableEmitter():
     """
     def __init__(self,
             target: arcade.Sprite,
-            particle_lifetime: float = 1.6,
-            noise: int = 10,
+            particle_lifetime: float = 0.5,
+            noise: int = 15,
             offset: Tuple[int] = (0, 6),
             emit_interval: float = 0.01,
             particle_count: int = 30,
@@ -232,7 +232,7 @@ class StoppableEmitter():
             center_xy=target.position,
             emit_controller = arcade.EmitterIntervalWithCount(self.emit_interval,0),
             particle_factory=lambda emitter: arcade.FadeParticle(
-                filename_or_texture = arcade.make_circle_texture(random.randint(7, 20), arcade.color.CYAN),
+                filename_or_texture = arcade.make_circle_texture(random.randint(7, 30), arcade.color.CYAN),
                 change_xy=offset,
                 lifetime=particle_lifetime,
                 start_alpha=start_alpa
