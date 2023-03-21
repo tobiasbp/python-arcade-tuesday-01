@@ -10,6 +10,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 import arcade
 from math import sin, cos, pi, sqrt, inf
 import random
+from typing import Tuple
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK
@@ -58,6 +59,7 @@ class Asteroid(arcade.Sprite):
         self.angle = random.randint(1, 360)
         self.forward(ASTEROIDS_SPEED)
         self.change_angle = random.uniform(-1, 1)
+        
     def on_update(self, delta_time: float = 1 / 60):
         self.change_x += self.change_x
         self.center_y += self.change_y
@@ -239,6 +241,57 @@ class PlayerShot(arcade.Sprite):
             self.kill()
 
 
+class StoppableEmitter():
+    """
+    It is possible to start and stop this emitter
+    """
+    def __init__(self,
+            target: arcade.Sprite,
+            particle_lifetime: float = 0.5,
+            noise: int = 15,
+            offset: Tuple[int] = (0, 6),
+            emit_interval: float = 0.01,
+            particle_count: int = 30,
+            start_alpa: int = 100):
+
+        self.target = target
+        self.noise = noise
+        self.emit_interval = emit_interval
+        self.particle_count = particle_count
+
+        # Emit controller enters endless loop with an interval of 0
+        assert self.emit_interval > 0, "Emit interval must be greater than 0"
+
+        # An emitter with a controller which does not have particles to emit (it's off)
+        self.emitter = arcade.Emitter(
+            center_xy=target.position,
+            emit_controller = arcade.EmitterIntervalWithCount(self.emit_interval,0),
+            particle_factory=lambda emitter: arcade.FadeParticle(
+                filename_or_texture = arcade.make_circle_texture(random.randint(7, 30), arcade.color.CYAN),
+                change_xy=offset,
+                lifetime=particle_lifetime,
+                start_alpha=start_alpa
+            )
+        )
+
+    def start(self):
+        """
+        Start emitter
+        """
+        self.emitter.rate_factory = arcade.EmitterIntervalWithCount(self.emit_interval, self.particle_count)
+
+    def stop(self):
+        """
+        Stop emitter
+        """
+        self.emitter.rate_factory = arcade.EmitterIntervalWithCount(self.emit_interval,0)
+
+    def update(self):
+        self.emitter.center_x, self.emitter.center_y = self.target.position
+        self.emitter.angle = (self.target.angle + 180) + random.randint(-1 * self.noise, self.noise)
+        self.emitter.update()
+
+
 class GameView(arcade.View):
     """
     Main application class.
@@ -329,6 +382,9 @@ class GameView(arcade.View):
             center_y=PLAYER_START_Y
         )
 
+        # Player rocket emitter
+        self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
+
     def reset(self):
         """
         Resets game when player loses a live
@@ -363,6 +419,9 @@ class GameView(arcade.View):
 
         # Draw the player shot
         self.player_shot_list.draw()
+
+        # Draw player rocket
+        self.player_rocket_emitter.emitter.draw()
 
         # Draw the player sprite
         self.player_sprite.draw()
@@ -456,6 +515,8 @@ class GameView(arcade.View):
             if self.player_sprite.lives < 1:
                 self.game_over()
 
+
+        # Subtract time from UFO_spawn_timer
         self.UFO_spawn_timer -= delta_time
 
         if self.UFO_spawn_timer <= 0:
@@ -468,9 +529,12 @@ class GameView(arcade.View):
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.angle -= PLAYER_ROTATE_SPEED
 
-        # Player rocket engine
+
+        self.player_rocket_emitter.update()
+
         if self.up_pressed:
             self.player_sprite.player_thrust()
+            self.player_rocket_emitter.start()
 
         # Move player with joystick if present
         # if self.joystick:
@@ -507,6 +571,8 @@ class GameView(arcade.View):
 
         # UFO wraps
         a_ufo_wrapped = self.screen_wrap(self.UFO_list)
+        if a_ufo_wrapped == True and SOUND_ON:
+            BonusUFO.sound_wraps.play()
 
         if SOUND_ON is True:
             if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
@@ -566,7 +632,6 @@ class GameView(arcade.View):
     def on_joyhat_motion(self, joystick, hat_x, hat_y):
         print("Joystick hat ({}, {})".format(hat_x, hat_y))
 
-
 class MenuView(arcade.View):
 
     def on_show_view(self):
@@ -587,7 +652,6 @@ class MenuView(arcade.View):
         game_view = GameView()
         self.window.show_view(game_view)
 
-
 class GameOverView(arcade.View):
     def on_show_view(self):
         arcade.set_background_color(arcade.color.PASTEL_PURPLE)
@@ -601,7 +665,6 @@ class GameOverView(arcade.View):
         menu_view = MenuView()
         self.window.show_view(menu_view)
 
-
 def main():
     """
     Main method
@@ -612,7 +675,6 @@ def main():
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
-
 
 if __name__ == "__main__":
     main()
