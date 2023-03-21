@@ -13,7 +13,7 @@ import random
 from typing import Tuple
 
 SPRITE_SCALING = 0.5
-BACKGROUND_COLOR = arcade.color.BLACK 
+BACKGROUND_COLOR = arcade.color.BLACK
 
 # Set the size of the screen
 SCREEN_WIDTH = 800
@@ -23,7 +23,7 @@ SCREEN_HEIGHT = 600
 PLAYER_LIVES = 3
 PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
-PLAYER_START_Y = 50
+PLAYER_START_Y = SCREEN_HEIGHT / 2
 PLAYER_SHOT_SPEED = 4
 PLAYER_SHOT_RANGE = max(SCREEN_HEIGHT, SCREEN_WIDTH) * 1.5
 PLAYER_ROTATE_SPEED = 5
@@ -36,7 +36,7 @@ UFO_SPAWN_TIME_MAX = 35
 UFO_SPAWN_TIME_MIN = 80
 
 # Configure asteroids
-ASTEROIDS_TIMER_SECONDS = inf # inf == spawn all asteroids at the same time
+ASTEROIDS_TIMER_SECONDS = inf  # inf == spawn all asteroids at the same time
 ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
 
@@ -44,40 +44,49 @@ ASTEROIDS_PER_LEVEL = 5
 SOUND_ON = True
 
 FIRE_KEY = arcade.key.SPACE
+MUTE_KEY = arcade.key.M
+
 
 class Asteroid(arcade.Sprite):
 
     def __init__(self):
-
         super().__init__(
-            center_x = random.randint(0, SCREEN_WIDTH),
-            center_y = random.randint(0, SCREEN_HEIGHT),
+            center_x=random.randint(0, SCREEN_WIDTH),
+            center_y=random.randint(0, SCREEN_HEIGHT),
             filename="images/Meteors/meteorBrown_big1.png",
             scale=SPRITE_SCALING
         )
         self.angle = random.randint(1, 360)
         self.forward(ASTEROIDS_SPEED)
+        self.change_angle = random.uniform(-1, 1)
+        
+    def on_update(self, delta_time: float = 1 / 60):
+        self.change_x += self.change_x
+        self.center_y += self.change_y
+        self.angle += self.change_angle
 
 class BonusUFO(arcade.Sprite):
-
     # when the UFO wraps it says a sound
-    if SOUND_ON:
+    try:
         sound_wraps = arcade.load_sound("sounds/forcefield_004.ogg")
+    except FileNotFoundError:
+        print("Could not load sound: sounds/forcefield_004.ogg")
+        sound_wraps = None
 
     def __init__(self):
         super().__init__(
             # center_x=SCREEN_WIDTH/2,
-            center_y=SCREEN_HEIGHT/2,
+            center_y=SCREEN_HEIGHT / 2,
             filename="images/ufoGreen.png"
         )
         self.ufo_spawn = 0
         self.speed = 1.0
         self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
         self.scale, self.value = random.choice(
-            [(1*SPRITE_SCALING,100), (2*SPRITE_SCALING,200)]
+            [(1 * SPRITE_SCALING, 100), (2 * SPRITE_SCALING, 200)]
         )
 
-        self.where_to_spawn = random.randint(1,4)
+        self.where_to_spawn = random.randint(1, 4)
 
         if self.where_to_spawn == 1:
             # Right. When spawning to the left it wraps right.
@@ -95,9 +104,6 @@ class BonusUFO(arcade.Sprite):
             # Bottom. When spawning to at the top it wraps to the bottom.
             self.center_x = random.randint(0, SCREEN_WIDTH)
             self.center_y = -1 * self.height
-
-
-
 
         self.change_dir()
 
@@ -124,10 +130,15 @@ class BonusUFO(arcade.Sprite):
             self.dir_timer = random.uniform(UFO_CHANGE_DIR_TIME_MIN, UFO_CHANGE_DIR_TIME_MAX)
             # print(self.dir_timer)
 
+
 class Player(arcade.Sprite):
     """
     The player
     """
+    try:
+        sound_dies = arcade.load_sound("sounds/explosionCrunch_000.ogg")
+    except FileNotFoundError:
+        sound_dies = None
 
     def __init__(self, **kwargs):
         """
@@ -143,18 +154,35 @@ class Player(arcade.Sprite):
         # Pass arguments to class arcade.Sprite
         super().__init__(**kwargs)
         self.score = 0
+        self.lives = PLAYER_LIVES
+
+    def dies(self):
+        """
+        Return True if player has no more lives, otherwise return False
+        """
+
+        self.lives -= 1
+
+        global SOUND_ON
+
+        if SOUND_ON is True:
+            if Player.sound_dies is not None:
+                Player.sound_dies.play()
+
+        if self.lives < 1:
+            return True
+        else:
+            return False
 
     def player_thrust(self):
-        self.change_x += PLAYER_THRUST * cos(self.radians + pi/2)
-        self.change_y += PLAYER_THRUST * sin(self.radians + pi/2)
+        self.change_x += PLAYER_THRUST * cos(self.radians + pi / 2)
+        self.change_y += PLAYER_THRUST * sin(self.radians + pi / 2)
 
-        speed = sqrt(self.change_x**2 + self.change_y**2)
+        speed = sqrt(self.change_x ** 2 + self.change_y ** 2)
 
         if speed > PLAYER_MAX_SPEED:
-            self.change_x /= speed/PLAYER_MAX_SPEED
-            self.change_y /= speed/PLAYER_MAX_SPEED
-
-
+            self.change_x /= speed / PLAYER_MAX_SPEED
+            self.change_y /= speed / PLAYER_MAX_SPEED
 
     def update(self):
         """
@@ -166,27 +194,34 @@ class Player(arcade.Sprite):
         # Update center_y
         self.center_y += self.change_y
 
+
 class PlayerShot(arcade.Sprite):
     """
     A shot fired by the Player
     """
-    if SOUND_ON:
+    try:
         sound_fire = arcade.load_sound("sounds/laserlarge_000.mp3")
+    except FileNotFoundError:
+        print("Could not load sound: sounds/laserlarge_000.mp3")
+        sound_fire = None
 
     def __init__(self, my_player):
         """
         Setup new PlayerShot object
         """
-        if SOUND_ON:
-            PlayerShot.sound_fire.play()
+        global SOUND_ON
+        if SOUND_ON is True:
+            if PlayerShot.sound_fire is not None:
+                PlayerShot.sound_fire.play()
+
         # Set the graphics to use for the sprite
         super().__init__("images/Lasers/laserBlue01.png", SPRITE_SCALING)
 
         self.angle = my_player.angle
         self.center_x = my_player.center_x
         self.center_y = my_player.center_y
-        self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi/2)
-        self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi/2)
+        self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi / 2)
+        self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi / 2)
         self.distance_traveled = 0
 
     def update(self):
@@ -275,7 +310,19 @@ class GameView(arcade.View):
 
         # Set up the player info
         self.player_sprite = None
-        self.player_lives = None
+
+        self.mute_icon = arcade.Sprite(
+            filename="images/Icons/audioOff.png",
+            center_y=SCREEN_HEIGHT-SCREEN_HEIGHT/10,
+            center_x=SCREEN_WIDTH-SCREEN_WIDTH/15
+        )
+
+        self.unmute_icon = arcade.Sprite(
+            filename="images/Icons/audioOn.png",
+            center_y=SCREEN_HEIGHT-SCREEN_HEIGHT/10,
+            center_x=SCREEN_WIDTH-SCREEN_WIDTH/15
+        )
+
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -305,17 +352,13 @@ class GameView(arcade.View):
             print("No joysticks found")
             self.joystick = None
 
-
-            #self.joystick.
+            # self.joystick.
         # Set the background color
         arcade.set_background_color(BACKGROUND_COLOR)
         self.setup()
 
     def setup(self):
         """ Set up the game and initialize the variables. """
-
-        # No of lives
-        self.player_lives = PLAYER_LIVES
 
         # Sprite lists
         self.player_shot_list = arcade.SpriteList()
@@ -342,6 +385,30 @@ class GameView(arcade.View):
         # Player rocket emitter
         self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
 
+    def reset(self):
+        """
+        Resets game when player loses a live
+        """
+
+        self.player_sprite.center_x = PLAYER_START_X
+        self.player_sprite.center_y = PLAYER_START_Y
+
+        # Sprite lists
+        self.player_shot_list = arcade.SpriteList()
+
+        # Asteroid list
+        self.asteroids_list = arcade.SpriteList()
+
+        for i in range(ASTEROIDS_PER_LEVEL):
+            self.asteroids_list.append(Asteroid())
+
+        # Time between asteroid spawn
+        self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
+
+        # UFO list
+        self.UFO_list = arcade.SpriteList()
+        self.UFO_spawn_timer = 0
+
     def on_draw(self):
         """
         Render the screen.
@@ -365,20 +432,27 @@ class GameView(arcade.View):
         # Draw UFO
         self.UFO_list.draw()
 
+        # Draw mute icon
+        if SOUND_ON is False:
+            self.mute_icon.draw()
+        else:
+            self.unmute_icon.draw()
+
+
         # Draw players score on screen
         arcade.draw_text(
             "SCORE: {}".format(self.player_sprite.score),  # Text to show
-            10,                  # X position
+            10,  # X position
             SCREEN_HEIGHT - 20,  # Y position
-            arcade.color.WHITE   # Color of text
+            arcade.color.WHITE  # Color of text
         )
 
         # Draw player lives
         arcade.draw_text(
-            "LIVES: {}".format(self.player_lives ),  # text to show
-            10,                  # X position
+            "LIVES: {}".format(self.player_sprite.lives),  # text to show
+            10,  # X position
             SCREEN_HEIGHT - 50,  # Y position
-            arcade.color.WHITE   # color of text
+            arcade.color.WHITE  # color of text
         )
 
     def game_over(self):
@@ -425,18 +499,20 @@ class GameView(arcade.View):
         # Do UFO and player collide? If so remove a life
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
-            self.player_lives -= 1
+            self.player_sprite.dies()
+            self.reset()
 
-            if self.player_lives < 1:
+            if self.player_sprite.lives < 1:
                 self.game_over()
 
         # Kill asteroids who collide with player and make player loose a life
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
-            self.player_lives -= 1
+            self.player_sprite.dies()
+            self.reset()
 
             # Restart game if player is dead
-            if self.player_lives < 1:
+            if self.player_sprite.lives < 1:
                 self.game_over()
 
 
@@ -444,7 +520,7 @@ class GameView(arcade.View):
         self.UFO_spawn_timer -= delta_time
 
         if self.UFO_spawn_timer <= 0:
-            self.UFO_spawn_timer = random.randint(UFO_CHANGE_DIR_TIME_MIN,UFO_SPAWN_TIME_MAX)
+            self.UFO_spawn_timer = random.randint(UFO_CHANGE_DIR_TIME_MIN, UFO_SPAWN_TIME_MAX)
             self.UFO_list.append(BonusUFO())
 
         # Move player with keyboard
@@ -461,7 +537,7 @@ class GameView(arcade.View):
             self.player_rocket_emitter.start()
 
         # Move player with joystick if present
-        #if self.joystick:
+        # if self.joystick:
         #    self.player_sprite.change_x = round(self.joystick.x) * PLAYER_SPEED
 
         # Update player sprite
@@ -479,7 +555,7 @@ class GameView(arcade.View):
             self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
 
         # Update the asteroids
-        self.asteroids_list.update()
+        self.asteroids_list.on_update(delta_time)
 
         # Update the UFOs
         self.UFO_list.on_update(delta_time)
@@ -497,6 +573,10 @@ class GameView(arcade.View):
         a_ufo_wrapped = self.screen_wrap(self.UFO_list)
         if a_ufo_wrapped == True and SOUND_ON:
             BonusUFO.sound_wraps.play()
+
+        if SOUND_ON is True:
+            if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
+                BonusUFO.sound_wraps.play()
 
     def on_key_press(self, key, modifiers):
         """
@@ -519,6 +599,10 @@ class GameView(arcade.View):
             )
 
             self.player_shot_list.append(new_shot)
+
+        global SOUND_ON
+        if key == MUTE_KEY:
+            SOUND_ON = not SOUND_ON
 
     def on_key_release(self, key, modifiers):
         """
@@ -564,7 +648,6 @@ class MenuView(arcade.View):
             anchor_x="center"
         )
 
-
     def on_key_press(self, key, _modifiers):
         game_view = GameView()
         self.window.show_view(game_view)
@@ -575,8 +658,8 @@ class GameOverView(arcade.View):
 
     def on_draw(self):
         self.clear()
-        arcade.draw_text("GAME OVER! u lost losr, click any key to start over", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.LEMON,20, anchor_x="center")
-
+        arcade.draw_text("GAME OVER! u lost losr, click any key to start over", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+                         arcade.color.LEMON, 20, anchor_x="center")
 
     def on_key_press(self, key, _modifiers):
         menu_view = MenuView()
@@ -587,7 +670,8 @@ def main():
     Main method
     """
 
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Kære dagbog, i dag har jeg fri fra jobsamtale. Jeg er megeti godt humør,fornøjet,frejdig,frimodig,fro,henrykt,lykkelig og salig.")
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT,
+                           "Kære dagbog, i dag har jeg fri fra jobsamtale. Jeg er megeti godt humør,fornøjet,frejdig,frimodig,fro,henrykt,lykkelig og salig.")
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
