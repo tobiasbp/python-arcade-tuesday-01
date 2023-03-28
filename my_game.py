@@ -496,6 +496,12 @@ class GameView(arcade.View):
                 s.kill()
                 u.kill()
 
+        # Remove asteroid when hit by player_shot
+        for s in self.player_shot_list:
+            for a in s.collides_with_list(self.asteroids_list):
+                s.kill()
+                a.kill()
+
         # Do UFO and player collide? If so remove a life
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
