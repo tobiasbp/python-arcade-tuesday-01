@@ -39,6 +39,7 @@ UFO_SPAWN_TIME_MIN = 80
 ASTEROIDS_TIMER_SECONDS = inf  # inf == spawn all asteroids at the same time
 ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
+ASTEROIDS_SIZE = [1, 0.5]
 
 # Play sound?
 SOUND_ON = True
@@ -49,7 +50,7 @@ MUTE_KEY = arcade.key.M
 
 class Asteroid(arcade.Sprite):
 
-    def __init__(self, center_x = None, center_y = None, angle = None):
+    def __init__(self, center_x = None, center_y = None, angle = None, size = 0):
         
         if center_x is None:
             center_x = random.randint(0, SCREEN_WIDTH)
@@ -57,14 +58,15 @@ class Asteroid(arcade.Sprite):
         if center_y is None:
             center_y = random.randint(0, SCREEN_HEIGHT)
 
-            
+        self.size = size
+
         super().__init__(
             center_x = center_x,
             center_y = center_y,
             filename="images/Meteors/meteorBrown_big1.png",
-            scale=SPRITE_SCALING,
+            scale= SPRITE_SCALING * ASTEROIDS_SIZE[self.size],
         )
-
+        
         if angle is None:
             self.angle = random.randint(1, 360)
         else:
@@ -521,8 +523,11 @@ class GameView(arcade.View):
         # Remove asteroid when hit by player_shot
         for s in self.player_shot_list:
             for a in s.collides_with_list(self.asteroids_list):
-                # + 90 to s.angle because the angle is changed to match the graphic
-                self.asteroids_list.append(Asteroid(a.center_x, a.center_y, s.angle + 90))
+                
+                for i in [-1, 1]:
+                    # + 90 to s.angle because the angle is changed to match the graphic
+                    self.asteroids_list.append(Asteroid(a.center_x, a.center_y, (s.angle + 90) + (i* random.randint(0,45)), a.size +1))
+                
                 s.kill()
                 a.kill()
 
