@@ -49,19 +49,32 @@ MUTE_KEY = arcade.key.M
 
 class Asteroid(arcade.Sprite):
 
-    def __init__(self):
+    def __init__(self, center_x = None, center_y = None, angle = None):
+        
+        if center_x is None:
+            center_x = random.randint(0, SCREEN_WIDTH)
+
+        if center_y is None:
+            center_y = random.randint(0, SCREEN_HEIGHT)
+
+            
         super().__init__(
-            center_x=random.randint(0, SCREEN_WIDTH),
-            center_y=random.randint(0, SCREEN_HEIGHT),
+            center_x = center_x,
+            center_y = center_y,
             filename="images/Meteors/meteorBrown_big1.png",
-            scale=SPRITE_SCALING
+            scale=SPRITE_SCALING,
         )
-        self.angle = random.randint(1, 360)
+
+        if angle is None:
+            self.angle = random.randint(1, 360)
+        else:
+            self.angle = angle
+
         self.forward(ASTEROIDS_SPEED)
         self.change_angle = random.uniform(-1, 1)
         
     def on_update(self, delta_time: float = 1 / 60):
-        self.change_x += self.change_x
+        self.center_x += self.change_x
         self.center_y += self.change_y
         self.angle += self.change_angle
 
@@ -499,6 +512,7 @@ class GameView(arcade.View):
         # Remove asteroid when hit by player_shot
         for s in self.player_shot_list:
             for a in s.collides_with_list(self.asteroids_list):
+                self.asteroids_list.append(Asteroid(a.center_x, a.center_y, ))
                 s.kill()
                 a.kill()
 
