@@ -43,7 +43,7 @@ ASTEROIDS_PER_LEVEL = 5
 # Play sound?
 SOUND_ON = True
 
-GAME_PAUSE = 2
+GAME_PAUSE_LENGTH_SECONDS = 2
 
 FIRE_KEY = arcade.key.SPACE
 MUTE_KEY = arcade.key.M
@@ -358,8 +358,6 @@ class GameView(arcade.View):
         self.UFO_list = arcade.SpriteList()
         self.UFO_spawn_timer = 0
 
-
-
     def on_draw(self):
         """
         Render the screen.
@@ -437,14 +435,12 @@ class GameView(arcade.View):
         Movement and game logic
         """
 
-
         if self.is_paused:
             # Decrease time until pause ends
             self.paused_time_left -= delta_time
 
             # Unpause when timer reaches 0
             if self.paused_time_left <= 0:
-                #self.paused_time_left = inf
                 self.is_paused = False
                 self.reset()
 
@@ -463,7 +459,7 @@ class GameView(arcade.View):
             u.kill()
             self.player_sprite.dies()
             self.is_paused = True
-            self.paused_time_left = GAME_PAUSE
+            self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
 
             if self.player_sprite.lives < 1:
                 self.game_over()
@@ -473,7 +469,7 @@ class GameView(arcade.View):
             a.kill()
             self.player_sprite.dies()
             self.is_paused = True
-            self.paused_time_left = GAME_PAUSE
+            self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
 
             # Restart game if player is dead
             if self.player_sprite.lives < 1:
