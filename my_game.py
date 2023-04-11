@@ -10,6 +10,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 import arcade
 from math import sin, cos, pi, sqrt, inf
 import random
+from time import sleep
 from typing import Tuple
 
 SPRITE_SCALING = 0.5
@@ -42,6 +43,8 @@ ASTEROIDS_PER_LEVEL = 5
 
 # Play sound?
 SOUND_ON = True
+
+GAME_PAUSE_LENGTH_SECONDS = 2
 
 FIRE_KEY = arcade.key.SPACE
 MUTE_KEY = arcade.key.M
@@ -307,6 +310,8 @@ class GameView(arcade.View):
         self.player_shot_list = None
         self.asteroids_list = None
         self.UFO_list = None
+        self.is_paused = False
+        self.paused_time_left = inf
 
         # Set up the player info
         self.player_sprite = None
@@ -489,6 +494,18 @@ class GameView(arcade.View):
         Movement and game logic
         """
 
+        if self.is_paused:
+            # Decrease time until pause ends
+            self.paused_time_left -= delta_time
+
+            # Unpause when timer reaches 0
+            if self.paused_time_left <= 0:
+                self.is_paused = False
+                self.reset()
+
+            # Skip on_update when game is paused
+            return
+
         # Do player_shot and UFO collide?
         for s in self.player_shot_list:
             for u in s.collides_with_list(self.UFO_list):
@@ -500,7 +517,8 @@ class GameView(arcade.View):
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
             self.player_sprite.dies()
-            self.reset()
+            self.is_paused = True
+            self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
 
             if self.player_sprite.lives < 1:
                 self.game_over()
@@ -509,7 +527,8 @@ class GameView(arcade.View):
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
             self.player_sprite.dies()
-            self.reset()
+            self.is_paused = True
+            self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
 
             # Restart game if player is dead
             if self.player_sprite.lives < 1:
