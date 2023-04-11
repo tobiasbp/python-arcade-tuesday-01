@@ -40,6 +40,8 @@ UFO_SPAWN_TIME_MIN = 80
 ASTEROIDS_TIMER_SECONDS = inf  # inf == spawn all asteroids at the same time
 ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
+ASTEROIDS_DEFAULT_SIZE = 4
+ASTEROIDS_SCALE = 0.4
 
 # Play sound?
 SOUND_ON = True
@@ -52,19 +54,33 @@ MUTE_KEY = arcade.key.M
 
 class Asteroid(arcade.Sprite):
 
-    def __init__(self):
+    def __init__(self, size, center_x = None, center_y = None, angle = None):
+        
+        if center_x is None:
+            center_x = random.randint(0, SCREEN_WIDTH)
+
+        if center_y is None:
+            center_y = random.randint(0, SCREEN_HEIGHT)
+
+        self.size = size
+
         super().__init__(
-            center_x=random.randint(0, SCREEN_WIDTH),
-            center_y=random.randint(0, SCREEN_HEIGHT),
+            center_x = center_x,
+            center_y = center_y,
             filename="images/Meteors/meteorBrown_big1.png",
-            scale=SPRITE_SCALING
+            scale= SPRITE_SCALING * ASTEROIDS_SCALE * self.size 
         )
-        self.angle = random.randint(1, 360)
+        
+        if angle is None:
+            self.angle = random.randint(1, 360)
+        else:
+            self.angle = angle
+
         self.forward(ASTEROIDS_SPEED)
         self.change_angle = random.uniform(-1, 1)
         
     def on_update(self, delta_time: float = 1 / 60):
-        self.change_x += self.change_x
+        self.center_x += self.change_x
         self.center_y += self.change_y
         self.angle += self.change_angle
 
@@ -372,7 +388,7 @@ class GameView(arcade.View):
         self.asteroids_list = arcade.SpriteList()
 
         for i in range(ASTEROIDS_PER_LEVEL):
-            self.asteroids_list.append(Asteroid())
+            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE))
 
         # Time between asteroid spawn
         self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
@@ -405,7 +421,7 @@ class GameView(arcade.View):
         self.asteroids_list = arcade.SpriteList()
 
         for i in range(ASTEROIDS_PER_LEVEL):
-            self.asteroids_list.append(Asteroid())
+            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE))
 
         # Time between asteroid spawn
         self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
@@ -522,6 +538,18 @@ class GameView(arcade.View):
 
             if self.player_sprite.lives < 1:
                 self.game_over()
+        
+        # Asteroid hit by player_shot
+        for s in self.player_shot_list:
+            for a in s.collides_with_list(self.asteroids_list):
+                
+                for i in [-1, 1]:
+                    # + 90 to s.angle because the angle is changed to match the graphic
+                    if a.size > 1:
+                        self.asteroids_list.append(Asteroid(a.size -1, a.center_x, a.center_y, (s.angle + 90) + (i* random.randint(0,45))))
+
+                s.kill()
+                a.kill()
 
         # Kill asteroids who collide with player and make player loose a life
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
@@ -570,7 +598,7 @@ class GameView(arcade.View):
 
         # Make new asteroid if the right amount of time has passed
         if self.asteroids_timer_seconds <= 0:
-            self.asteroids_list.append(Asteroid())
+            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE))
             self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
 
         # Update the asteroids
