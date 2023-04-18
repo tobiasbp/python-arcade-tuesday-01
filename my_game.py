@@ -417,6 +417,9 @@ class GameView(arcade.View):
         self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
+
+        self.player_sprite.change_x = 0
+        self.player_sprite.change_y = 0
         
         # Define player_rocket_emitter
         # self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
