@@ -418,35 +418,12 @@ class GameView(arcade.View):
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
 
+        # Player should not keep moving when reset
         self.player_sprite.change_x = 0
         self.player_sprite.change_y = 0
         
+        # Rocket should not emit particles under reset
         self.player_rocket_emitter.stop()
-
-    """
-    def reset(self):
-               # Resets game when player loses a live
-       
-
-        self.player_sprite.center_x = PLAYER_START_X
-        self.player_sprite.center_y = PLAYER_START_Y
-
-        # Sprite lists
-        self.player_shot_list = arcade.SpriteList()
-
-        # Asteroid list
-        self.asteroids_list = arcade.SpriteList()
-
-        for i in range(ASTEROIDS_PER_LEVEL):
-            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE, self.player_sprite))
-
-        # Time between asteroid spawn
-        self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
-
-        # UFO list
-        self.UFO_list = arcade.SpriteList()
-        self.UFO_spawn_timer = 0
-    """
 
     def on_draw(self):
         """
