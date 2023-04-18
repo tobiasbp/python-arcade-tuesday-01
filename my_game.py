@@ -45,7 +45,7 @@ ASTEROIDS_SCALE = 0.4
 ASTEROIDS_MIN_DIST = 50
 
 # Play sound?
-SOUND_ON = True
+SOUND_ON = False
 
 GAME_PAUSE_LENGTH_SECONDS = 2
 
@@ -540,9 +540,8 @@ class GameView(arcade.View):
                 
                 for i in [-1, 1]:
                     # + 90 to s.angle because the angle is changed to match the graphic
-                    if a.size > 1:
                         self.asteroids_list.append(Asteroid(a.size -1, self.player_sprite, a.center_x, a.center_y, (s.angle + 90) + (i* random.randint(0,45))))
-
+                self.player_sprite.score += 100//a.size
                 s.kill()
                 a.kill()
 
