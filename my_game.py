@@ -548,9 +548,9 @@ class GameView(arcade.View):
 
                 # split off two asteroids going left or right
                 for direction in [-1, 1]:
-                    # + 90 to s.angle because the angle is changed to match the graphic
                     # only split if size is bigger than one
                     if a.size > 1:
+                        # + 90 to s.angle because the angle is changed to match the graphic
                         new_angle = (s.angle + 90) + (direction * random.randint(0, ASTEROIDS_MAX_SPLIT_ANGLE))
                         self.asteroids_list.append(
                             Asteroid(a.size-1, a.center_x, a.center_y, new_angle)
