@@ -42,6 +42,9 @@ ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
 ASTEROIDS_DEFAULT_SIZE = 4
 ASTEROIDS_SCALE = 0.4
+ASTEROIDS_MAX_SPLIT_ANGLE = 45
+# the points you get for the smallest size (1) asteroids: less points for big asteroids.
+ASTEROIDS_MAX_POINTS = 100
 
 # Play sound?
 SOUND_ON = True
@@ -524,12 +527,18 @@ class GameView(arcade.View):
         # Asteroid hit by player_shot
         for s in self.player_shot_list:
             for a in s.collides_with_list(self.asteroids_list):
-                
-                for i in [-1, 1]:
-                    # + 90 to s.angle because the angle is changed to match the graphic
-                    if a.size > 1:
-                        self.asteroids_list.append(Asteroid(a.size -1, a.center_x, a.center_y, (s.angle + 90) + (i* random.randint(0,45))))
 
+                # split off two asteroids going left or right
+                for direction in [-1, 1]:
+                    # only split if size is bigger than one
+                    if a.size > 1:
+                        # + 90 to s.angle because the angle is changed to match the graphic
+                        new_angle = (s.angle + 90) + (direction * random.randint(0, ASTEROIDS_MAX_SPLIT_ANGLE))
+                        self.asteroids_list.append(
+                            Asteroid(a.size-1, a.center_x, a.center_y, new_angle)
+                        )
+                        # Big asteroids gives less points
+                    self.player_sprite.score += ASTEROIDS_MAX_POINTS//a.size
                 s.kill()
                 a.kill()
 
