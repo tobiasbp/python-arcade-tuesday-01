@@ -42,7 +42,7 @@ ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
 ASTEROIDS_DEFAULT_SIZE = 4
 ASTEROIDS_SCALE = 0.4
-ASTEROIDS_MIN_DIST = 10
+ASTEROIDS_MIN_DIST = 50
 
 # Play sound?
 SOUND_ON = True
@@ -58,24 +58,14 @@ class Asteroid(arcade.Sprite):
     def __init__(self, size, player, center_x = None, center_y = None, angle = None):
         
         if center_x is None and center_y is None:
-            rand_pos = True
         
-        while True:
-
-            if rand_pos == True:
+            while True:
+            
                 center_x = random.randint(0, SCREEN_WIDTH)
                 center_y = random.randint(0, SCREEN_HEIGHT)
 
                 if arcade.get_distance(center_x, center_y, player.center_x, player.center_y) > ASTEROIDS_MIN_DIST:
-                    rand_pos = False
                     break
-        else:
-            rand_pos = False
-
-
-            #if center_x is None or center_y is None:
-            #if center_y is None:
-                #center_y = random.randint(0, SCREEN_HEIGHT)
 
         self.size = size
 
