@@ -46,6 +46,7 @@ ASTEROIDS_MIN_DIST = 50
 ASTEROIDS_MAX_SPLIT_ANGLE = 45
 # the points you get for the smallest size (1) asteroids: less points for big asteroids.
 ASTEROIDS_MAX_POINTS = 100
+ASTEROIDS_MIN_DIST = 10
 
 # Play sound?
 SOUND_ON = True
