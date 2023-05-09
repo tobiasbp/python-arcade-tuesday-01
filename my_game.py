@@ -42,9 +42,12 @@ ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
 ASTEROIDS_DEFAULT_SIZE = 4
 ASTEROIDS_SCALE = 0.4
+ASTEROIDS_MIN_DIST = 50
 ASTEROIDS_MAX_SPLIT_ANGLE = 45
 # the points you get for the smallest size (1) asteroids: less points for big asteroids.
 ASTEROIDS_MAX_POINTS = 100
+ASTEROIDS_MIN_DIST = 50
+
 
 # Play sound?
 SOUND_ON = True
@@ -57,13 +60,17 @@ MUTE_KEY = arcade.key.M
 
 class Asteroid(arcade.Sprite):
 
-    def __init__(self, size, center_x = None, center_y = None, angle = None):
+    def __init__(self, size, player, center_x = None, center_y = None, angle = None):
         
-        if center_x is None:
-            center_x = random.randint(0, SCREEN_WIDTH)
+        if center_x is None and center_y is None:
 
-        if center_y is None:
-            center_y = random.randint(0, SCREEN_HEIGHT)
+            # If asteroid position not legal, give new position
+            while True:
+                center_x = random.randint(0, SCREEN_WIDTH)
+                center_y = random.randint(0, SCREEN_HEIGHT)
+                if arcade.get_distance(center_x, center_y, player.center_x, player.center_y) > ASTEROIDS_MIN_DIST:
+                    break
+
 
         self.size = size
 
@@ -395,8 +402,14 @@ class GameView(arcade.View):
         # Asteroid list
         self.asteroids_list = arcade.SpriteList()
 
+        # Create a Player object
+        self.player_sprite = Player(
+            center_x=PLAYER_START_X,
+            center_y=PLAYER_START_Y
+        )
+
         for i in range(ASTEROIDS_PER_LEVEL):
-            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE))
+            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE, self.player_sprite))
 
         # Time between asteroid spawn
         self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
@@ -405,6 +418,8 @@ class GameView(arcade.View):
         self.UFO_list = arcade.SpriteList()
         self.UFO_spawn_timer = 0
 
+        # Player rocket emitter
+        self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
 
@@ -535,7 +550,7 @@ class GameView(arcade.View):
                         # + 90 to s.angle because the angle is changed to match the graphic
                         new_angle = (s.angle + 90) + (direction * random.randint(0, ASTEROIDS_MAX_SPLIT_ANGLE))
                         self.asteroids_list.append(
-                            Asteroid(a.size-1, a.center_x, a.center_y, new_angle)
+                            Asteroid(a.size-1, self.player_sprite, a.center_x, a.center_y, new_angle)
                         )
                         # Big asteroids gives less points
                     self.player_sprite.score += ASTEROIDS_MAX_POINTS//a.size
@@ -589,7 +604,7 @@ class GameView(arcade.View):
 
         # Make new asteroid if the right amount of time has passed
         if self.asteroids_timer_seconds <= 0:
-            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE))
+            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE, self.player_sprite))
             self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
 
         # Update the asteroids
