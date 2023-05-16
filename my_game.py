@@ -12,6 +12,7 @@ from math import sin, cos, pi, sqrt, inf
 import random
 from time import sleep
 from typing import Tuple
+from pyglet.math import Vec2
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK
@@ -57,6 +58,10 @@ GAME_PAUSE_LENGTH_SECONDS = 2
 FIRE_KEY = arcade.key.SPACE
 MUTE_KEY = arcade.key.M
 
+# Shake
+SHAKE_AMPLITUDE = 12
+SHAKE_SPEED = 1.5
+SHAKE_DAMPING = 0.9
 
 class Asteroid(arcade.Sprite):
 
@@ -332,6 +337,9 @@ class GameView(arcade.View):
         Initializer
         """
 
+        self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.camera_GUI = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+
         # Variable that will hold a list of shots fired by the player
         self.player_shot_list = None
         self.asteroids_list = None
@@ -430,10 +438,18 @@ class GameView(arcade.View):
         # Rocket should not emit particles under reset
         self.player_rocket_emitter.stop()
 
+    def shake_cam(self,amplitude):
+        random_dir = random.uniform(0, 2 * pi)
+        sv = Vec2(amplitude * cos(random_dir), amplitude * sin(random_dir))
+        self.camera_sprites.shake(sv, SHAKE_SPEED, SHAKE_DAMPING)
+
     def on_draw(self):
         """
         Render the screen.
         """
+
+        # Use the camera
+        self.camera_sprites.use()
 
         # This command has to happen before we start drawing
         arcade.start_render()
@@ -452,6 +468,9 @@ class GameView(arcade.View):
 
         # Draw UFO
         self.UFO_list.draw()
+
+        # Use the camera
+        self.camera_GUI.use()
 
         # Draw mute icon
         if SOUND_ON is False:
@@ -533,6 +552,7 @@ class GameView(arcade.View):
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
             self.player_sprite.dies()
+            self.shake_cam(SHAKE_AMPLITUDE)
             self.is_paused = True
             self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
 
@@ -561,6 +581,7 @@ class GameView(arcade.View):
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
             self.player_sprite.dies()
+            self.shake_cam(SHAKE_AMPLITUDE)
             self.is_paused = True
             self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
 
