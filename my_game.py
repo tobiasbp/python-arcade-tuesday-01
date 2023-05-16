@@ -48,7 +48,7 @@ ASTEROIDS_MAX_SPLIT_ANGLE = 45
 ASTEROIDS_MAX_POINTS = 100
 
 # Play sound?
-SOUND_ON = True
+SOUND_ON = False
 
 GAME_PAUSE_LENGTH_SECONDS = 2
 
@@ -331,6 +331,7 @@ class GameView(arcade.View):
         """
 
         self.camera = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.camera_GUI = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
         # Variable that will hold a list of shots fired by the player
         self.player_shot_list = None
@@ -432,6 +433,9 @@ class GameView(arcade.View):
         Render the screen.
         """
 
+        # Use the camera
+        self.camera.use()
+
         # This command has to happen before we start drawing
         arcade.start_render()
 
@@ -457,7 +461,7 @@ class GameView(arcade.View):
             self.unmute_icon.draw()
 
         # Use the camera
-        self.camera.use()
+        self.camera_GUI.use()
 
 
         # Draw players score on screen
@@ -654,12 +658,6 @@ class GameView(arcade.View):
             )
 
             self.player_shot_list.append(new_shot)
-
-        #v = Vec2(1.0, 1.1)
-        #shake_speed =1.5
-        #shake_damping = 0.9
-        #self.camera.shake(SHAKE_VECTOR, SHAKE_SPEED, SHAKE_DAMPING)
-        #self.camera.move_to((0, 0), Vec2(0,2))
 
         global SOUND_ON
         if key == MUTE_KEY:
