@@ -48,7 +48,7 @@ ASTEROIDS_MAX_SPLIT_ANGLE = 45
 ASTEROIDS_MAX_POINTS = 100
 
 # Play sound?
-SOUND_ON = False
+SOUND_ON = True
 
 GAME_PAUSE_LENGTH_SECONDS = 2
 
@@ -330,7 +330,7 @@ class GameView(arcade.View):
         Initializer
         """
 
-        self.camera = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.camera_sprite = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_GUI = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
         # Variable that will hold a list of shots fired by the player
@@ -426,7 +426,7 @@ class GameView(arcade.View):
     def shake_cam(self,amplitude):
         random_dir = random.uniform(0, 2 * pi)
         sv = Vec2(amplitude * cos(random_dir), amplitude * sin(random_dir))
-        self.camera.shake(sv, SHAKE_SPEED, SHAKE_DAMPING)
+        self.camera_sprite.shake(sv, SHAKE_SPEED, SHAKE_DAMPING)
 
     def on_draw(self):
         """
@@ -434,7 +434,7 @@ class GameView(arcade.View):
         """
 
         # Use the camera
-        self.camera.use()
+        self.camera_sprite.use()
 
         # This command has to happen before we start drawing
         arcade.start_render()
@@ -454,14 +454,14 @@ class GameView(arcade.View):
         # Draw UFO
         self.UFO_list.draw()
 
+        # Use the camera
+        self.camera_GUI.use()
+
         # Draw mute icon
         if SOUND_ON is False:
             self.mute_icon.draw()
         else:
             self.unmute_icon.draw()
-
-        # Use the camera
-        self.camera_GUI.use()
 
 
         # Draw players score on screen
