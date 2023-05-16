@@ -51,7 +51,7 @@ ASTEROIDS_MIN_DIST = 50
 
 
 # Play sound?
-SOUND_ON = False
+SOUND_ON = True
 
 GAME_PAUSE_LENGTH_SECONDS = 2
 
@@ -421,6 +421,8 @@ class GameView(arcade.View):
 
         # Player rocket emitter
         self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
+
+        # Reset player position
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
 
