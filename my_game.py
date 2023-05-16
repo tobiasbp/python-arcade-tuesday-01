@@ -330,7 +330,7 @@ class GameView(arcade.View):
         Initializer
         """
 
-        self.camera_sprite = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_GUI = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
         # Variable that will hold a list of shots fired by the player
@@ -426,7 +426,7 @@ class GameView(arcade.View):
     def shake_cam(self,amplitude):
         random_dir = random.uniform(0, 2 * pi)
         sv = Vec2(amplitude * cos(random_dir), amplitude * sin(random_dir))
-        self.camera_sprite.shake(sv, SHAKE_SPEED, SHAKE_DAMPING)
+        self.camera_sprites.shake(sv, SHAKE_SPEED, SHAKE_DAMPING)
 
     def on_draw(self):
         """
@@ -434,7 +434,7 @@ class GameView(arcade.View):
         """
 
         # Use the camera
-        self.camera_sprite.use()
+        self.camera_sprites.use()
 
         # This command has to happen before we start drawing
         arcade.start_render()
