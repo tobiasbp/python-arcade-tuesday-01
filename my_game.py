@@ -51,7 +51,7 @@ ASTEROIDS_MIN_DIST = 50
 
 
 # Play sound?
-SOUND_ON = True
+SOUND_ON = False
 
 GAME_PAUSE_LENGTH_SECONDS = 2
 
@@ -336,7 +336,6 @@ class GameView(arcade.View):
         """
         Initializer
         """
-
         self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_GUI = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
@@ -409,12 +408,6 @@ class GameView(arcade.View):
 
         # Asteroid list
         self.asteroids_list = arcade.SpriteList()
-
-        # Create a Player object
-        self.player_sprite = Player(
-            center_x=PLAYER_START_X,
-            center_y=PLAYER_START_Y
-        )
 
         for i in range(ASTEROIDS_PER_LEVEL):
             self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE, self.player_sprite))
