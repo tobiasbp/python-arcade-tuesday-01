@@ -345,7 +345,7 @@ class GameView(arcade.View):
         self.UFO_list = None
         self.is_paused = False
         self.paused_time_left = inf
-        self.level = 0
+        self.level = 1
 
         # Set up the player info
         self.player_sprite = None
