@@ -21,6 +21,9 @@ BACKGROUND_COLOR = arcade.color.BLACK
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
+# Level
+LEVEL = 0
+
 # Variables controlling the player
 PLAYER_LIVES = 3
 PLAYER_THRUST = 0.2
@@ -51,7 +54,7 @@ ASTEROIDS_MIN_DIST = 50
 
 
 # Play sound?
-SOUND_ON = True
+SOUND_ON = False
 
 GAME_PAUSE_LENGTH_SECONDS = 2
 
@@ -646,6 +649,12 @@ class GameView(arcade.View):
         if SOUND_ON is True:
             if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
                 BonusUFO.sound_wraps.play()
+        global LEVEL
+        if len(self.asteroids_list) == 0:
+            self.asteroids_list = arcade.SpriteList()
+            for i in range(ASTEROIDS_PER_LEVEL):
+                self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE, self.player_sprite))
+            LEVEL += 1
 
     def on_key_press(self, key, modifiers):
         """
