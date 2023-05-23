@@ -345,6 +345,7 @@ class GameView(arcade.View):
         self.UFO_list = None
         self.is_paused = False
         self.paused_time_left = inf
+        self.level = 0
 
         # Set up the player info
         self.player_sprite = None
@@ -487,6 +488,14 @@ class GameView(arcade.View):
             "LIVES: {}".format(self.player_sprite.lives),  # text to show
             10,  # X position
             SCREEN_HEIGHT - 50,  # Y position
+            arcade.color.WHITE  # color of text
+        )
+
+        # Draw player level
+        arcade.draw_text(
+            "LEVEL: {}".format(self.level),  # text to show
+            10,  # X position
+            SCREEN_HEIGHT - 80,  # Y position
             arcade.color.WHITE  # color of text
         )
 
@@ -646,6 +655,10 @@ class GameView(arcade.View):
         if SOUND_ON is True:
             if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
                 BonusUFO.sound_wraps.play()
+
+        if len(self.asteroids_list) == 0:
+            self.reset()
+            self.level += 1
 
     def on_key_press(self, key, modifiers):
         """
