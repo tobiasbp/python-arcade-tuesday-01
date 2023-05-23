@@ -21,9 +21,6 @@ BACKGROUND_COLOR = arcade.color.BLACK
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-# Level
-LEVEL = 0
-
 # Variables controlling the player
 PLAYER_LIVES = 3
 PLAYER_THRUST = 0.2
@@ -348,6 +345,7 @@ class GameView(arcade.View):
         self.UFO_list = None
         self.is_paused = False
         self.paused_time_left = inf
+        self.level = 0
 
         # Set up the player info
         self.player_sprite = None
@@ -490,6 +488,14 @@ class GameView(arcade.View):
             "LIVES: {}".format(self.player_sprite.lives),  # text to show
             10,  # X position
             SCREEN_HEIGHT - 50,  # Y position
+            arcade.color.WHITE  # color of text
+        )
+
+        # Draw player level
+        arcade.draw_text(
+            "LEVEL: {}".format(self.level),  # text to show
+            10,  # X position
+            SCREEN_HEIGHT - 80,  # Y position
             arcade.color.WHITE  # color of text
         )
 
@@ -649,12 +655,10 @@ class GameView(arcade.View):
         if SOUND_ON is True:
             if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
                 BonusUFO.sound_wraps.play()
-        global LEVEL
+
         if len(self.asteroids_list) == 0:
-            self.asteroids_list = arcade.SpriteList()
-            for i in range(ASTEROIDS_PER_LEVEL):
-                self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE, self.player_sprite))
-            LEVEL += 1
+            self.reset()
+            self.level += 1
 
     def on_key_press(self, key, modifiers):
         """
