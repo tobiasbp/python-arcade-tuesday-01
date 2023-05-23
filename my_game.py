@@ -51,7 +51,7 @@ ASTEROIDS_MIN_DIST = 50
 
 
 # Play sound?
-SOUND_ON = False
+SOUND_ON = True
 
 GAME_PAUSE_LENGTH_SECONDS = 2
 
