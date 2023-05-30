@@ -13,6 +13,7 @@ from math import sin, cos, pi, sqrt, inf
 import random
 from time import sleep
 from typing import Tuple
+from pyglet.math import Vec2
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK
@@ -43,9 +44,12 @@ ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
 ASTEROIDS_DEFAULT_SIZE = 4
 ASTEROIDS_SCALE = 0.4
+ASTEROIDS_MIN_DIST = 50
 ASTEROIDS_MAX_SPLIT_ANGLE = 45
 # the points you get for the smallest size (1) asteroids: less points for big asteroids.
 ASTEROIDS_MAX_POINTS = 100
+ASTEROIDS_MIN_DIST = 50
+
 
 # Play sound?
 SOUND_ON = True
@@ -54,16 +58,26 @@ GAME_PAUSE_LENGTH_SECONDS = 2
 
 FIRE_KEY = arcade.key.SPACE
 MUTE_KEY = arcade.key.M
-    
+
+# Shake
+SHAKE_AMPLITUDE = 12
+SHAKE_SPEED = 1.5
+SHAKE_DAMPING = 0.9
+
+
 class Asteroid(arcade.Sprite):
 
-    def __init__(self, size, center_x = None, center_y = None, angle = None):
+    def __init__(self, size, player, center_x = None, center_y = None, angle = None):
         
-        if center_x is None:
-            center_x = random.randint(0, SCREEN_WIDTH)
+        if center_x is None and center_y is None:
 
-        if center_y is None:
-            center_y = random.randint(0, SCREEN_HEIGHT)
+            # If asteroid position not legal, give new position
+            while True:
+                center_x = random.randint(0, SCREEN_WIDTH)
+                center_y = random.randint(0, SCREEN_HEIGHT)
+                if arcade.get_distance(center_x, center_y, player.center_x, player.center_y) > ASTEROIDS_MIN_DIST:
+                    break
+
 
         self.size = size
 
@@ -324,6 +338,8 @@ class GameView(arcade.View):
         """
         Initializer
         """
+        self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.camera_GUI = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
         # Variable that will hold a list of shots fired by the player
         self.player_shot_list = None
@@ -331,6 +347,7 @@ class GameView(arcade.View):
         self.UFO_list = None
         self.is_paused = False
         self.paused_time_left = inf
+        self.level = 1
 
         # Set up the player info
         self.player_sprite = None
@@ -396,7 +413,7 @@ class GameView(arcade.View):
         self.asteroids_list = arcade.SpriteList()
 
         for i in range(ASTEROIDS_PER_LEVEL):
-            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE))
+            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE, self.player_sprite))
 
         # Time between asteroid spawn
         self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
@@ -405,6 +422,10 @@ class GameView(arcade.View):
         self.UFO_list = arcade.SpriteList()
         self.UFO_spawn_timer = 0
 
+        # Player rocket emitter
+        self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
+
+        # Reset player position
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
 
@@ -415,10 +436,18 @@ class GameView(arcade.View):
         # Rocket should not emit particles under reset
         self.player_rocket_emitter.stop()
 
+    def shake_cam(self,amplitude):
+        random_dir = random.uniform(0, 2 * pi)
+        sv = Vec2(amplitude * cos(random_dir), amplitude * sin(random_dir))
+        self.camera_sprites.shake(sv, SHAKE_SPEED, SHAKE_DAMPING)
+
     def on_draw(self):
         """
         Render the screen.
         """
+
+        # Use the camera
+        self.camera_sprites.use()
 
         # This command has to happen before we start drawing
         arcade.start_render()
@@ -437,6 +466,9 @@ class GameView(arcade.View):
 
         # Draw UFO
         self.UFO_list.draw()
+
+        # Use the camera
+        self.camera_GUI.use()
 
         # Draw mute icon
         if SOUND_ON is False:
@@ -458,6 +490,14 @@ class GameView(arcade.View):
             "LIVES: {}".format(self.player_sprite.lives),  # text to show
             10,  # X position
             SCREEN_HEIGHT - 50,  # Y position
+            arcade.color.WHITE  # color of text
+        )
+
+        # Draw player level
+        arcade.draw_text(
+            "LEVEL: {}".format(self.level),  # text to show
+            10,  # X position
+            SCREEN_HEIGHT - 80,  # Y position
             arcade.color.WHITE  # color of text
         )
 
@@ -518,6 +558,7 @@ class GameView(arcade.View):
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
             self.player_sprite.dies()
+            self.shake_cam(SHAKE_AMPLITUDE)
             self.is_paused = True
             self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
 
@@ -535,7 +576,7 @@ class GameView(arcade.View):
                         # + 90 to s.angle because the angle is changed to match the graphic
                         new_angle = (s.angle + 90) + (direction * random.randint(0, ASTEROIDS_MAX_SPLIT_ANGLE))
                         self.asteroids_list.append(
-                            Asteroid(a.size-1, a.center_x, a.center_y, new_angle)
+                            Asteroid(a.size-1, self.player_sprite, a.center_x, a.center_y, new_angle)
                         )
                         # Big asteroids gives less points
                     self.player_sprite.score += ASTEROIDS_MAX_POINTS//a.size
@@ -546,6 +587,7 @@ class GameView(arcade.View):
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
             self.player_sprite.dies()
+            self.shake_cam(SHAKE_AMPLITUDE)
             self.is_paused = True
             self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
 
@@ -589,7 +631,7 @@ class GameView(arcade.View):
 
         # Make new asteroid if the right amount of time has passed
         if self.asteroids_timer_seconds <= 0:
-            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE))
+            self.asteroids_list.append(Asteroid(ASTEROIDS_DEFAULT_SIZE, self.player_sprite))
             self.asteroids_timer_seconds = ASTEROIDS_TIMER_SECONDS
 
         # Update the asteroids
@@ -615,6 +657,10 @@ class GameView(arcade.View):
         if SOUND_ON is True:
             if a_ufo_wrapped and BonusUFO.sound_wraps is not None:
                 BonusUFO.sound_wraps.play()
+
+        if len(self.asteroids_list) == 0:
+            self.reset()
+            self.level += 1
 
     def on_key_press(self, key, modifiers):
         """
