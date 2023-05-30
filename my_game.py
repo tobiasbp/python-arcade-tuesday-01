@@ -8,6 +8,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 """
 
 import arcade
+import arcade.gui
 from math import sin, cos, pi, sqrt, inf
 import random
 from time import sleep
@@ -62,6 +63,7 @@ MUTE_KEY = arcade.key.M
 SHAKE_AMPLITUDE = 12
 SHAKE_SPEED = 1.5
 SHAKE_DAMPING = 0.9
+
 
 class Asteroid(arcade.Sprite):
 
@@ -735,13 +737,50 @@ class MenuView(arcade.View):
         self.window.show_view(game_view)
 
 class GameOverView(arcade.View):
+    highscores = [
+        {
+            "player": "CoolUser123",
+            "score": 123
+        },
+        {
+            "player": "HelloKittyLover1",
+            "score": 50
+        },
+        {
+            "player": "Happy_Asparagus->_:D",
+            "score": 42
+        }
+        ]
+        
     def on_show_view(self):
         arcade.set_background_color(arcade.color.PASTEL_PURPLE)
+        self.UImanager = arcade.gui.UIManager()
+        self.layout = arcade.gui.UIBoxLayout()
+        self.UImanager.enable()
 
+        for i in self.highscores:
+            text = arcade.gui.UILabel(
+                width=400, 
+                text=f"{i['player']}: {i['score']}", 
+                text_color=arcade.color.BLACK, 
+                bold=True
+                )
+
+            self.layout.add(text.with_space_around(bottom=20))
+        
+        self.UImanager.add(
+            arcade.gui.UIAnchorWidget(
+            anchor_x="center_x",
+            anchor_y="center_y",
+            child=self.layout
+            )
+        )
+        
     def on_draw(self):
         self.clear()
         arcade.draw_text("GAME OVER! u lost losr, click any key to start over", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                          arcade.color.LEMON, 20, anchor_x="center")
+        self.UImanager.draw()
 
     def on_key_press(self, key, _modifiers):
         menu_view = MenuView()
