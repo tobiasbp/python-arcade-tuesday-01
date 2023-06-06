@@ -4,7 +4,6 @@ Simple program to show moving a sprite with the keyboard.
 This program uses the Arcade library found at http://arcade.academy
 
 Artwork from https://kenney.nl/assets/space-shooter-redux
-
 """
 
 import arcade
@@ -14,6 +13,8 @@ import random
 from time import sleep
 from typing import Tuple
 from pyglet.math import Vec2
+import requests
+import simplejson
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK
@@ -50,6 +51,9 @@ ASTEROIDS_MAX_SPLIT_ANGLE = 45
 ASTEROIDS_MAX_POINTS = 100
 ASTEROIDS_MIN_DIST = 50
 
+# API settings
+API_URL = "https://xhighscoredb-1-q4331561.deta.app/"
+API_GAME_KEY = "g2y9a6nl0lbb"
 
 # Play sound?
 SOUND_ON = True
@@ -64,6 +68,25 @@ SHAKE_AMPLITUDE = 12
 SHAKE_SPEED = 1.5
 SHAKE_DAMPING = 0.9
 
+
+def api_get_highscores(api_url, game_key, limit):
+	"""
+	Retrieves scores and returns a list of
+	dictionaries with player names and scores
+	"""
+
+	r = requests.get(api_url + f"v1/games/{game_key}/scores")
+
+	player_highscores = []
+
+	for score in r.json()["_items"]:
+	    # Check for errors before appending
+	    player_highscores.append({
+	        "player": requests.get(api_url + f"v1/players/{score['player_key']}").json()["name"],
+	        "score": score["score"]
+	    })
+
+	return player_highscores
 
 class Asteroid(arcade.Sprite):
 
@@ -737,6 +760,8 @@ class MenuView(arcade.View):
         self.window.show_view(game_view)
 
 class GameOverView(arcade.View):
+
+    # Hardcoded highscores that will be fetched from a file in the future
     highscores = [
         {
             "player": "CoolUser123",
@@ -750,8 +775,21 @@ class GameOverView(arcade.View):
             "player": "Happy_Asparagus->_:D",
             "score": 42
         }
-        ]
+    ]
         
+    # Retrieving highscores from api, else displaying local highscores
+    try:
+        highscores = api_get_highscores(API_URL, API_GAME_KEY, 10)
+
+    except requests.exceptions.ConnectionError:
+        print("Could not access api, using local highscores")
+
+    except simplejson.errors.JSONDecodeError:
+        print("Invalid json response, using local highscores")
+
+    else:
+        print("Using api highscores")
+
     def on_show_view(self):
         arcade.set_background_color(arcade.color.PASTEL_PURPLE)
         self.UImanager = arcade.gui.UIManager()
