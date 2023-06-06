@@ -15,6 +15,7 @@ from typing import Tuple
 from pyglet.math import Vec2
 import requests
 import simplejson
+import yaml
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK
@@ -52,8 +53,11 @@ ASTEROIDS_MAX_POINTS = 100
 ASTEROIDS_MIN_DIST = 50
 
 # API settings
-API_URL = "https://xhighscoredb-1-q4331561.deta.app/"
-API_GAME_KEY = "g2y9a6nl0lbb"
+with open("highscores_config.yml") as f:
+    config = yaml.safe_load(f)
+    API_URL = config["api-url"]
+    API_GAME_KEY = config["api-game-key"]
+    API_ACCESS_TOKEN = config["api-access-token"]
 
 # Play sound?
 SOUND_ON = True

@@ -130,3 +130,6 @@ dmypy.json
 
 # pycharm
 .idea/
+
+# Game highscore config file
+highscores_config.yml
