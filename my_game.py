@@ -616,10 +616,6 @@ class GameView(arcade.View):
             self.player_sprite.player_thrust()
             self.player_rocket_emitter.start()
 
-        # Move player with joystick if present
-        # if self.joystick:
-        #    self.player_sprite.change_x = round(self.joystick.x) * PLAYER_SPEED
-
         # Update player sprite
         self.player_sprite.update()
 
@@ -704,14 +700,31 @@ class GameView(arcade.View):
 
     def on_joybutton_press(self, joystick, button_no):
         print("Button pressed:", button_no)
+
+        if button_no == 0:
+            self.player_sprite.player_thrust()
+            self.player_rocket_emitter.start()
+            print("player moved!!")
+
         # Press the fire key
-        self.on_key_press(FIRE_KEY, [])
+        if button_no == 1:
+            self.on_key_press(FIRE_KEY, [])
 
     def on_joybutton_release(self, joystick, button_no):
         print("Button released:", button_no)
 
+
     def on_joyaxis_motion(self, joystick, axis, value):
         print("Joystick axis {}, value {}".format(axis, value))
+        
+        if axis == "x":
+            if value == -1:
+                self.left_pressed = True
+            elif value == 1:
+                self.right_pressed = True
+            else:
+                self.right_pressed = False
+                self.left_pressed = False
 
     def on_joyhat_motion(self, joystick, hat_x, hat_y):
         print("Joystick hat ({}, {})".format(hat_x, hat_y))
