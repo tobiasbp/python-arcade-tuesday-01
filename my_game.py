@@ -23,7 +23,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 # Variables controlling the player
-PLAYER_LIVES = 3
+PLAYER_LIVES = 1
 PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = SCREEN_HEIGHT / 2
@@ -63,6 +63,8 @@ MUTE_KEY = arcade.key.M
 SHAKE_AMPLITUDE = 12
 SHAKE_SPEED = 1.5
 SHAKE_DAMPING = 0.9
+
+FONT_TYPE = "Kenney Blocks"
 
 
 class Asteroid(arcade.Sprite):
@@ -482,7 +484,8 @@ class GameView(arcade.View):
             "SCORE: {}".format(self.player_sprite.score),  # Text to show
             10,  # X position
             SCREEN_HEIGHT - 20,  # Y position
-            arcade.color.WHITE  # Color of text
+            arcade.color.WHITE,  # Color of text
+            font_name=FONT_TYPE
         )
 
         # Draw player lives
@@ -490,7 +493,8 @@ class GameView(arcade.View):
             "LIVES: {}".format(self.player_sprite.lives),  # text to show
             10,  # X position
             SCREEN_HEIGHT - 50,  # Y position
-            arcade.color.WHITE  # color of text
+            arcade.color.WHITE,  # color of text
+            font_name=FONT_TYPE
         )
 
         # Draw player level
@@ -498,7 +502,8 @@ class GameView(arcade.View):
             "LEVEL: {}".format(self.level),  # text to show
             10,  # X position
             SCREEN_HEIGHT - 80,  # Y position
-            arcade.color.WHITE  # color of text
+            arcade.color.WHITE,  # color of text
+            font_name = FONT_TYPE
         )
 
     def game_over(self):
@@ -729,7 +734,8 @@ class MenuView(arcade.View):
             SCREEN_HEIGHT / 2,
             arcade.color.WHITE,
             font_size=30,
-            anchor_x="center"
+            anchor_x="center",
+            font_name=FONT_TYPE
         )
 
     def on_key_press(self, key, _modifiers):
@@ -760,10 +766,11 @@ class GameOverView(arcade.View):
 
         for i in self.highscores:
             text = arcade.gui.UILabel(
-                width=400, 
+                width=400,
                 text=f"{i['player']}: {i['score']}", 
                 text_color=arcade.color.WHITE,
-                bold=True
+                bold=True,
+                font_name=FONT_TYPE
                 )
 
             self.layout.add(text.with_space_around(bottom=20))
@@ -779,7 +786,7 @@ class GameOverView(arcade.View):
     def on_draw(self):
         self.clear()
         arcade.draw_text("GAME OVER!", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50,
-                         arcade.color.WHITE, 20, anchor_x="center")
+                         arcade.color.WHITE, 20, anchor_x="center", font_name=FONT_TYPE)
         self.UImanager.draw()
 
     def on_key_press(self, key, _modifiers):
