@@ -28,7 +28,7 @@ PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = SCREEN_HEIGHT / 2
 PLAYER_SHOT_SPEED = 4
-PLAYER_SHOT_RANGE = max(SCREEN_HEIGHT, SCREEN_WIDTH) * 1
+PLAYER_SHOT_RANGE = max(SCREEN_HEIGHT, SCREEN_WIDTH) * 0.5
 PLAYER_ROTATE_SPEED = 5
 PLAYER_MAX_SPEED = 7
 
@@ -63,6 +63,8 @@ MUTE_KEY = arcade.key.M
 SHAKE_AMPLITUDE = 12
 SHAKE_SPEED = 1.5
 SHAKE_DAMPING = 0.9
+
+FONT_NAME = "Kenney Blocks"
 
 
 class Asteroid(arcade.Sprite):
@@ -482,7 +484,8 @@ class GameView(arcade.View):
             "SCORE: {}".format(self.player_sprite.score),  # Text to show
             10,  # X position
             SCREEN_HEIGHT - 20,  # Y position
-            arcade.color.WHITE  # Color of text
+            arcade.color.WHITE,  # Color of text
+            font_name=FONT_NAME
         )
 
         # Draw player lives
@@ -490,7 +493,8 @@ class GameView(arcade.View):
             "LIVES: {}".format(self.player_sprite.lives),  # text to show
             10,  # X position
             SCREEN_HEIGHT - 50,  # Y position
-            arcade.color.WHITE  # color of text
+            arcade.color.WHITE,  # color of text
+            font_name=FONT_NAME
         )
 
         # Draw player level
@@ -498,7 +502,8 @@ class GameView(arcade.View):
             "LEVEL: {}".format(self.level),  # text to show
             10,  # X position
             SCREEN_HEIGHT - 80,  # Y position
-            arcade.color.WHITE  # color of text
+            arcade.color.WHITE,  # color of text
+            font_name = FONT_NAME
         )
 
     def game_over(self):
@@ -719,17 +724,18 @@ class GameView(arcade.View):
 class MenuView(arcade.View):
 
     def on_show_view(self):
-        arcade.set_background_color(arcade.color.PINK)
+        arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
         self.clear()
         arcade.draw_text(
-            "omg start the game by clicking any key",
+            "Start by pressing any key",
             SCREEN_WIDTH / 2,
             SCREEN_HEIGHT / 2,
             arcade.color.WHITE,
             font_size=30,
-            anchor_x="center"
+            anchor_x="center",
+            font_name=FONT_NAME
         )
 
     def on_key_press(self, key, _modifiers):
@@ -753,17 +759,18 @@ class GameOverView(arcade.View):
         ]
         
     def on_show_view(self):
-        arcade.set_background_color(arcade.color.PASTEL_PURPLE)
+        arcade.set_background_color(arcade.color.BLACK)
         self.UImanager = arcade.gui.UIManager()
         self.layout = arcade.gui.UIBoxLayout()
         self.UImanager.enable()
 
         for i in self.highscores:
             text = arcade.gui.UILabel(
-                width=400, 
+                width=400,
                 text=f"{i['player']}: {i['score']}", 
-                text_color=arcade.color.BLACK, 
-                bold=True
+                text_color=arcade.color.WHITE,
+                bold=True,
+                font_name=FONT_NAME
                 )
 
             self.layout.add(text.with_space_around(bottom=20))
@@ -778,8 +785,8 @@ class GameOverView(arcade.View):
         
     def on_draw(self):
         self.clear()
-        arcade.draw_text("GAME OVER! u lost losr, click any key to start over", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
-                         arcade.color.LEMON, 20, anchor_x="center")
+        arcade.draw_text("GAME OVER!", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50,
+                         arcade.color.WHITE, 20, anchor_x="center", font_name=FONT_NAME)
         self.UImanager.draw()
 
     def on_key_press(self, key, _modifiers):
@@ -792,7 +799,7 @@ def main():
     """
 
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT,
-                           "Kære dagbog, i dag har jeg fri fra jobsamtale. Jeg er megeti godt humør,fornøjet,frejdig,frimodig,fro,henrykt,lykkelig og salig.")
+                           "☆〉Asteroids")
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
