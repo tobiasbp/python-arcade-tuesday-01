@@ -719,12 +719,12 @@ class GameView(arcade.View):
 class MenuView(arcade.View):
 
     def on_show_view(self):
-        arcade.set_background_color(arcade.color.PINK)
+        arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
         self.clear()
         arcade.draw_text(
-            "omg start the game by clicking any key",
+            "Start by pressing any key",
             SCREEN_WIDTH / 2,
             SCREEN_HEIGHT / 2,
             arcade.color.WHITE,
@@ -753,7 +753,7 @@ class GameOverView(arcade.View):
         ]
         
     def on_show_view(self):
-        arcade.set_background_color(arcade.color.PASTEL_PURPLE)
+        arcade.set_background_color(arcade.color.BLACK)
         self.UImanager = arcade.gui.UIManager()
         self.layout = arcade.gui.UIBoxLayout()
         self.UImanager.enable()
@@ -762,7 +762,7 @@ class GameOverView(arcade.View):
             text = arcade.gui.UILabel(
                 width=400, 
                 text=f"{i['player']}: {i['score']}", 
-                text_color=arcade.color.BLACK, 
+                text_color=arcade.color.WHITE,
                 bold=True
                 )
 
@@ -778,8 +778,8 @@ class GameOverView(arcade.View):
         
     def on_draw(self):
         self.clear()
-        arcade.draw_text("GAME OVER! u lost losr, click any key to start over", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
-                         arcade.color.LEMON, 20, anchor_x="center")
+        arcade.draw_text("GAME OVER!", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50,
+                         arcade.color.WHITE, 20, anchor_x="center")
         self.UImanager.draw()
 
     def on_key_press(self, key, _modifiers):
@@ -792,7 +792,7 @@ def main():
     """
 
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT,
-                           "Kære dagbog, i dag har jeg fri fra jobsamtale. Jeg er megeti godt humør,fornøjet,frejdig,frimodig,fro,henrykt,lykkelig og salig.")
+                           "☆〉Asteroids")
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
