@@ -702,9 +702,7 @@ class GameView(arcade.View):
         print("Button pressed:", button_no)
 
         if button_no == 0:
-            self.player_sprite.player_thrust()
-            self.player_rocket_emitter.start()
-            print("player moved!!")
+            self.up_pressed = True
 
         # Press the fire key
         if button_no == 1:
@@ -712,6 +710,7 @@ class GameView(arcade.View):
 
     def on_joybutton_release(self, joystick, button_no):
         print("Button released:", button_no)
+        self.up_pressed = False
 
 
     def on_joyaxis_motion(self, joystick, axis, value):
