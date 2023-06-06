@@ -64,7 +64,7 @@ SHAKE_AMPLITUDE = 12
 SHAKE_SPEED = 1.5
 SHAKE_DAMPING = 0.9
 
-FONT_TYPE = "Kenney Blocks"
+FONT_NAME = "Kenney Blocks"
 
 
 class Asteroid(arcade.Sprite):
@@ -485,7 +485,7 @@ class GameView(arcade.View):
             10,  # X position
             SCREEN_HEIGHT - 20,  # Y position
             arcade.color.WHITE,  # Color of text
-            font_name=FONT_TYPE
+            font_name=FONT_NAME
         )
 
         # Draw player lives
@@ -494,7 +494,7 @@ class GameView(arcade.View):
             10,  # X position
             SCREEN_HEIGHT - 50,  # Y position
             arcade.color.WHITE,  # color of text
-            font_name=FONT_TYPE
+            font_name=FONT_NAME
         )
 
         # Draw player level
@@ -503,7 +503,7 @@ class GameView(arcade.View):
             10,  # X position
             SCREEN_HEIGHT - 80,  # Y position
             arcade.color.WHITE,  # color of text
-            font_name = FONT_TYPE
+            font_name = FONT_NAME
         )
 
     def game_over(self):
@@ -735,7 +735,7 @@ class MenuView(arcade.View):
             arcade.color.WHITE,
             font_size=30,
             anchor_x="center",
-            font_name=FONT_TYPE
+            font_name=FONT_NAME
         )
 
     def on_key_press(self, key, _modifiers):
@@ -770,7 +770,7 @@ class GameOverView(arcade.View):
                 text=f"{i['player']}: {i['score']}", 
                 text_color=arcade.color.WHITE,
                 bold=True,
-                font_name=FONT_TYPE
+                font_name=FONT_NAME
                 )
 
             self.layout.add(text.with_space_around(bottom=20))
@@ -786,7 +786,7 @@ class GameOverView(arcade.View):
     def on_draw(self):
         self.clear()
         arcade.draw_text("GAME OVER!", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50,
-                         arcade.color.WHITE, 20, anchor_x="center", font_name=FONT_TYPE)
+                         arcade.color.WHITE, 20, anchor_x="center", font_name=FONT_NAME)
         self.UImanager.draw()
 
     def on_key_press(self, key, _modifiers):
