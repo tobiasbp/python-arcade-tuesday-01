@@ -25,7 +25,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 # Variables controlling the player
-PLAYER_LIVES = 3
+PLAYER_LIVES = 1
 PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = SCREEN_HEIGHT / 2
@@ -53,7 +53,7 @@ ASTEROIDS_MAX_POINTS = 100
 ASTEROIDS_MIN_DIST = 50
 
 # API settings
-with open("highscores_config.yml") as f:
+with open("highscores_config.yml", "r") as f:
     config = yaml.safe_load(f)
     API_URL = config["api-url"]
     API_GAME_KEY = config["api-game-key"]
@@ -529,7 +529,9 @@ class GameView(arcade.View):
         )
 
     def game_over(self):
+        #menu_view = GameOverView(self.player_sprite.score)
         menu_view = GameOverView()
+        menu_view.setup_scores("MyUser", self.player_sprite.score)
         self.window.show_view(menu_view)
 
     def screen_wrap(self, list_to_wrap):
@@ -764,23 +766,35 @@ class MenuView(arcade.View):
         self.window.show_view(game_view)
 
 class GameOverView(arcade.View):
-
-    # Hardcoded highscores that will be fetched from a file in the future
-    highscores = [
-        {
-            "player": "CoolUser123",
-            "score": 123
-        },
-        {
-            "player": "HelloKittyLover1",
-            "score": 50
-        },
-        {
-            "player": "Happy_Asparagus->_:D",
-            "score": 42
-        }
-    ]
+    
+    def setup_scores(self, player_name, score):
+        try:
+            with open("highscores.yml", "r") as f:
+                self.highscores = yaml.safe_load(f)
+            self.highscores.append({"player": player_name, "score": score})
+            self.highscores.sort(key=lambda highscores: -highscores['score'])
+            with open("highscores.yml", "w") as f:
+                yaml.dump(self.highscores, f)
+        except IndexError:
+            # Hardcoded highscores that will be fetched from a file in the future
+            self.highscores = [
+                {
+                    "player": "CoolUser123",
+                    "score": 123
+                },
+                {
+                    "player": "HelloKittyLover1",
+                    "score": 50
+                },
+                {
+                    "player": "Happy_Asparagus->_:D",
+                    "score": 42
+                }
+            ]
         
+            
+    """
+    # WORK IN PROGRESS
     # Retrieving highscores from api, else displaying local highscores
     try:
         highscores = api_get_highscores(API_URL, API_GAME_KEY, 10)
@@ -793,6 +807,7 @@ class GameOverView(arcade.View):
 
     else:
         print("Using api highscores")
+    """
 
     def on_show_view(self):
         arcade.set_background_color(arcade.color.PASTEL_PURPLE)
