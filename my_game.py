@@ -44,11 +44,10 @@ ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
 ASTEROIDS_DEFAULT_SIZE = 4
 ASTEROIDS_SCALE = 0.4
-ASTEROIDS_MIN_DIST = 50
+ASTEROIDS_MIN_SPAWN_DIST = 150
 ASTEROIDS_MAX_SPLIT_ANGLE = 45
 # the points you get for the smallest size (1) asteroids: less points for big asteroids.
 ASTEROIDS_MAX_POINTS = 100
-ASTEROIDS_MIN_DIST = 50
 
 
 # Play sound?
@@ -77,7 +76,7 @@ class Asteroid(arcade.Sprite):
             while True:
                 center_x = random.randint(0, SCREEN_WIDTH)
                 center_y = random.randint(0, SCREEN_HEIGHT)
-                if arcade.get_distance(center_x, center_y, player.center_x, player.center_y) > ASTEROIDS_MIN_DIST:
+                if arcade.get_distance(center_x, center_y, player.center_x, player.center_y) > ASTEROIDS_MIN_SPAWN_DIST:
                     break
 
 
