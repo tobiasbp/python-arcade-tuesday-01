@@ -242,7 +242,7 @@ class PlayerShot(arcade.Sprite):
         print("Could not load sound: sounds/laserlarge_000.mp3")
         sound_fire = None
 
-    def __init__(self, my_player):
+    def __init__(self, my_player,offset=8):
         """
         Setup new PlayerShot object
         """
@@ -257,9 +257,15 @@ class PlayerShot(arcade.Sprite):
         self.angle = my_player.angle
         self.center_x = my_player.center_x
         self.center_y = my_player.center_y
+        # Calculate speeds base on angle
         self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi / 2)
         self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi / 2)
+
         self.distance_traveled = 0
+
+        # Player shot spawns on the tip of the player instead of inside the player
+        self.center_x += self.change_x * offset
+        self.center_y += self.change_y * offset
 
     def update(self):
         """
