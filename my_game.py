@@ -425,7 +425,9 @@ class GameView(arcade.View):
         self.UFO_spawn_timer = 0
 
         # Player rocket emitter
+        self.emitter_list = []
         self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
+        self.emitter_list.append(self.player_rocket_emitter.emitter)
 
         # Reset player position
         self.player_sprite.center_x = PLAYER_START_X
@@ -458,7 +460,8 @@ class GameView(arcade.View):
         self.player_shot_list.draw()
 
         # Draw player rocket
-        self.player_rocket_emitter.emitter.draw()
+        for e in self.emitter_list:
+            e.draw()
 
         # Draw the player sprite
         self.player_sprite.draw()
@@ -534,6 +537,19 @@ class GameView(arcade.View):
                 some_thing_wrapped = True
 
         return some_thing_wrapped
+    
+    def get_explosion(self, pos_x, pos_y):
+
+        new_emitter = arcade.make_burst_emitter(
+            center_xy=[pos_x, pos_y],
+            filenames_and_textures = [arcade.make_circle_texture(5, arcade.color.ORANGE)],
+            particle_count=10,
+            particle_speed=10,
+            particle_lifetime_min=2,
+            particle_lifetime_max=5)
+        
+        self.emitter_list.append(new_emitter)
+
 
     def on_update(self, delta_time):
         """
@@ -573,7 +589,10 @@ class GameView(arcade.View):
         # Asteroid hit by player_shot
         for s in self.player_shot_list:
             for a in s.collides_with_list(self.asteroids_list):
-
+                
+                # Asteroids explosion
+                self.get_explosion(a.center_x, a.center_y)
+                
                 # split off two asteroids going left or right
                 for direction in [-1, 1]:
                     # only split if size is bigger than one
@@ -614,8 +633,9 @@ class GameView(arcade.View):
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.angle -= PLAYER_ROTATE_SPEED
 
-
-        self.player_rocket_emitter.update()
+        # Update emitters
+        for e in self.emitter_list:
+            e.update()
 
         if self.up_pressed:
             self.player_sprite.player_thrust()
