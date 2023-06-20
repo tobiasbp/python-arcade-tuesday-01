@@ -51,7 +51,7 @@ ASTEROIDS_MAX_POINTS = 100
 
 
 # Play sound?
-SOUND_ON = False
+SOUND_ON = True
 
 GAME_PAUSE_LENGTH_SECONDS = 2
 
