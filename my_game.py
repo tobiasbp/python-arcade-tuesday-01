@@ -53,11 +53,18 @@ ASTEROIDS_MAX_POINTS = 100
 ASTEROIDS_MIN_DIST = 50
 
 # API settings
-with open("highscores_config.yml", "r") as f:
-    config = yaml.safe_load(f)
-    API_URL = config["api-url"]
-    API_GAME_KEY = config["api-game-key"]
-    API_ACCESS_TOKEN = config["api-access-token"]
+try:
+    with open("highscores_config.yml", "r") as f:
+        config = yaml.safe_load(f)
+        API_URL = config["api-url"]
+        API_GAME_KEY = config["api-game-key"]
+        API_ACCESS_TOKEN = config["api-access-token"]
+except FileNotFoundError:
+    print("No highscore config file found, creating one")
+    with open("highscores_config_demo.yml", "r") as f:
+        data = f.read()
+    with open("highscores_config.yml", "w") as f:
+        f.write(data)
 
 # Play sound?
 SOUND_ON = True
