@@ -774,28 +774,16 @@ class GameOverView(arcade.View):
             if self.highscores == None:
                 self.highscores = []
             self.highscores.append({"player": player_name, "score": score})
-            self.highscores.sort(key=lambda highscores: -highscores['score'])
+            # Negating score when sorting so the largest score comes first
+            self.highscores.sort(key=lambda highscores: -1 * highscores['score'])
             with open("highscores.yml", "w") as f:
                 yaml.dump(self.highscores, f)
-        except:
+        except FileNotFoundError:
             # Hardcoded highscores that will be fetched from a file in the future
             # If file dosen't exist it creates a new one
             with open("highscores.yml", "w") as f:
                 yaml.dump([{"player": player_name, "score": score}], f)
-            self.highscores = [
-                {
-                    "player": "CoolUser123",
-                    "score": 123
-                },
-                {
-                    "player": "HelloKittyLover1",
-                    "score": 50
-                },
-                {
-                    "player": "Happy_Asparagus->_:D",
-                    "score": 42
-                }
-            ]
+            self.highscores = [{"player": player_name, "score": score}]
         
             
     """
