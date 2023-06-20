@@ -497,8 +497,7 @@ class GameView(arcade.View):
             e.draw()
 
         # Draw player rocket
-        for e in self.emitter_list:
-            e.draw()
+        self.player_rocket_emitter.emitter.draw()
 
         # Draw the player sprite
         self.player_sprite.draw()
