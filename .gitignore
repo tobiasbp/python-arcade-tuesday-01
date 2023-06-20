@@ -133,3 +133,4 @@ dmypy.json
 
 # Game highscore config file
 highscores_config.yml
+highscores.yml

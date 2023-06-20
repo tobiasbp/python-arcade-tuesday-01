@@ -6,3 +6,6 @@ api-game-key: "MyGameKey"
 
 # Secret token required to post to the database
 api-access-token: "MySecretToken"
+
+# Name of the player
+player-name: "MyUsername"

@@ -771,12 +771,17 @@ class GameOverView(arcade.View):
         try:
             with open("highscores.yml", "r") as f:
                 self.highscores = yaml.safe_load(f)
+            if self.highscores == None:
+                self.highscores = []
             self.highscores.append({"player": player_name, "score": score})
             self.highscores.sort(key=lambda highscores: -highscores['score'])
             with open("highscores.yml", "w") as f:
                 yaml.dump(self.highscores, f)
-        except IndexError:
+        except:
             # Hardcoded highscores that will be fetched from a file in the future
+            # If file dosen't exist it creates a new one
+            with open("highscores.yml", "w") as f:
+                yaml.dump([{"player": player_name, "score": score}], f)
             self.highscores = [
                 {
                     "player": "CoolUser123",
@@ -815,7 +820,7 @@ class GameOverView(arcade.View):
         self.layout = arcade.gui.UIBoxLayout()
         self.UImanager.enable()
 
-        for i in self.highscores:
+        for i in self.highscores[:10]:
             text = arcade.gui.UILabel(
                 width=400, 
                 text=f"{i['player']}: {i['score']}", 
@@ -832,7 +837,7 @@ class GameOverView(arcade.View):
             child=self.layout
             )
         )
-        
+    
     def on_draw(self):
         self.clear()
         arcade.draw_text("GAME OVER! u lost losr, click any key to start over", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
