@@ -460,7 +460,7 @@ class GameView(arcade.View):
         
         # Player rocket emitter
         self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
-        self.emitter_list.append(self.player_rocket_emitter.emitter)
+        # self.emitter_list.append(self.player_rocket_emitter.emitter)
 
         # Reset player position
         self.player_sprite.center_x = PLAYER_START_X
@@ -491,6 +491,10 @@ class GameView(arcade.View):
 
         # Draw the player shot
         self.player_shot_list.draw()
+
+        # Draw emitters
+        for e in self.emitter_list:
+            e.draw()
 
         # Draw player rocket
         for e in self.emitter_list:
@@ -671,6 +675,8 @@ class GameView(arcade.View):
         # Update emitters
         for e in self.emitter_list:
             e.update()
+
+        self.player_rocket_emitter.update()
 
         if self.up_pressed:
             self.player_sprite.player_thrust()
