@@ -68,17 +68,16 @@ FONT_NAME = "Kenney Blocks"
 
 class Asteroid(arcade.Sprite):
 
-    def __init__(self, size, player, center_x = None, center_y = None, angle = None):
-        
-        if center_x is None and center_y is None:
+    def __init__(self, size, player, center_x=None, center_y=None, angle=None):
 
+        # If no position given, spawn at random position not on Player
+        if center_x is None and center_y is None:
             # If asteroid position not legal, give new position
             while True:
                 center_x = random.randint(0, SCREEN_WIDTH)
                 center_y = random.randint(0, SCREEN_HEIGHT)
                 if arcade.get_distance(center_x, center_y, player.center_x, player.center_y) > ASTEROIDS_MIN_SPAWN_DIST:
                     break
-
 
         self.size = size
 
@@ -487,7 +486,7 @@ class GameView(arcade.View):
         # Draw players score on screen
         arcade.draw_text(
             "SCORE: {}".format(self.player_sprite.score),  # Text to show
-            10,  # X position
+            5,  # X position
             SCREEN_HEIGHT - 20,  # Y position
             arcade.color.WHITE,  # Color of text
             font_name=FONT_NAME
@@ -496,7 +495,7 @@ class GameView(arcade.View):
         # Draw player lives
         arcade.draw_text(
             "LIVES: {}".format(self.player_sprite.lives),  # text to show
-            10,  # X position
+            5,  # X position
             SCREEN_HEIGHT - 50,  # Y position
             arcade.color.WHITE,  # color of text
             font_name=FONT_NAME
@@ -505,7 +504,7 @@ class GameView(arcade.View):
         # Draw player level
         arcade.draw_text(
             "LEVEL: {}".format(self.level),  # text to show
-            10,  # X position
+            5,  # X position
             SCREEN_HEIGHT - 80,  # Y position
             arcade.color.WHITE,  # color of text
             font_name = FONT_NAME
@@ -584,7 +583,7 @@ class GameView(arcade.View):
                     # only split if size is bigger than one
                     if a.size > 1:
                         # + 90 to s.angle because the angle is changed to match the graphic
-                        new_angle = (s.angle + 90) + (direction * random.randint(0, ASTEROIDS_MAX_SPLIT_ANGLE))
+                        new_angle = (s.angle + 0) + (direction * random.randint(0, ASTEROIDS_MAX_SPLIT_ANGLE))
                         self.asteroids_list.append(
                             Asteroid(a.size-1, self.player_sprite, a.center_x, a.center_y, new_angle)
                         )
