@@ -1,0 +1,11 @@
+# URL to api
+api-url: "https://myapi.example.org/"
+
+# Key of the game inside of the api's database
+api-game-key: "MyGameKey"
+
+# Secret token required to post to the database
+api-access-token: "MySecretToken"
+
+# Name of the player
+player-name: "MyUsername"
