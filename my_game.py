@@ -573,7 +573,7 @@ class GameView(arcade.View):
 
             if self.player_sprite.lives < 1:
                 self.game_over()
-        
+
         # Asteroid hit by player_shot
         for s in self.player_shot_list:
             for a in s.collides_with_list(self.asteroids_list):
@@ -583,7 +583,7 @@ class GameView(arcade.View):
                     # only split if size is bigger than one
                     if a.size > 1:
                         # + 90 to s.angle because the angle is changed to match the graphic
-                        new_angle = (s.angle + 0) + (direction * random.randint(0, ASTEROIDS_MAX_SPLIT_ANGLE))
+                        new_angle = (s.angle + 90) + (direction * random.randint(0, ASTEROIDS_MAX_SPLIT_ANGLE))
                         self.asteroids_list.append(
                             Asteroid(a.size-1, self.player_sprite, a.center_x, a.center_y, new_angle)
                         )
