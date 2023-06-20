@@ -4,7 +4,6 @@ Simple program to show moving a sprite with the keyboard.
 This program uses the Arcade library found at http://arcade.academy
 
 Artwork from https://kenney.nl/assets/space-shooter-redux
-
 """
 
 import arcade
@@ -14,6 +13,9 @@ import random
 from time import sleep
 from typing import Tuple
 from pyglet.math import Vec2
+import requests
+import simplejson
+import yaml
 
 SPRITE_SCALING = 0.5
 BACKGROUND_COLOR = arcade.color.BLACK
@@ -23,7 +25,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 # Variables controlling the player
-PLAYER_LIVES = 3
+PLAYER_LIVES = 1
 PLAYER_THRUST = 0.2
 PLAYER_START_X = SCREEN_WIDTH / 2
 PLAYER_START_Y = SCREEN_HEIGHT / 2
@@ -44,12 +46,17 @@ ASTEROIDS_SPEED = 1
 ASTEROIDS_PER_LEVEL = 5
 ASTEROIDS_DEFAULT_SIZE = 4
 ASTEROIDS_SCALE = 0.4
-ASTEROIDS_MIN_DIST = 50
+ASTEROIDS_MIN_SPAWN_DIST = 150
 ASTEROIDS_MAX_SPLIT_ANGLE = 45
 # the points you get for the smallest size (1) asteroids: less points for big asteroids.
 ASTEROIDS_MAX_POINTS = 100
-ASTEROIDS_MIN_DIST = 50
 
+# API settings
+with open("highscores_config.yml", "r") as f:
+    config = yaml.safe_load(f)
+    API_URL = config["api-url"]
+    API_GAME_KEY = config["api-game-key"]
+    API_ACCESS_TOKEN = config["api-access-token"]
 
 # Play sound?
 SOUND_ON = True
@@ -67,19 +74,37 @@ SHAKE_DAMPING = 0.9
 FONT_NAME = "Kenney Blocks"
 
 
+def api_get_highscores(api_url, game_key, limit):
+	"""
+	Retrieves scores and returns a list of
+	dictionaries with player names and scores
+	"""
+
+	r = requests.get(api_url + f"v1/games/{game_key}/scores")
+
+	player_highscores = []
+
+	for score in r.json()["_items"]:
+	    # Check for errors before appending
+	    player_highscores.append({
+	        "player": requests.get(api_url + f"v1/players/{score['player_key']}").json()["name"],
+	        "score": score["score"]
+	    })
+
+	return player_highscores
+
 class Asteroid(arcade.Sprite):
 
-    def __init__(self, size, player, center_x = None, center_y = None, angle = None):
-        
-        if center_x is None and center_y is None:
+    def __init__(self, size, player, center_x=None, center_y=None, angle=None):
 
+        # If no position given, spawn at random position not on Player
+        if center_x is None and center_y is None:
             # If asteroid position not legal, give new position
             while True:
                 center_x = random.randint(0, SCREEN_WIDTH)
                 center_y = random.randint(0, SCREEN_HEIGHT)
-                if arcade.get_distance(center_x, center_y, player.center_x, player.center_y) > ASTEROIDS_MIN_DIST:
+                if arcade.get_distance(center_x, center_y, player.center_x, player.center_y) > ASTEROIDS_MIN_SPAWN_DIST:
                     break
-
 
         self.size = size
 
@@ -243,7 +268,7 @@ class PlayerShot(arcade.Sprite):
         print("Could not load sound: sounds/laserlarge_000.mp3")
         sound_fire = None
 
-    def __init__(self, my_player):
+    def __init__(self, my_player,offset=8):
         """
         Setup new PlayerShot object
         """
@@ -258,9 +283,15 @@ class PlayerShot(arcade.Sprite):
         self.angle = my_player.angle
         self.center_x = my_player.center_x
         self.center_y = my_player.center_y
+        # Calculate speeds base on angle
         self.change_x = PLAYER_SHOT_SPEED * cos(self.radians + pi / 2)
         self.change_y = PLAYER_SHOT_SPEED * sin(self.radians + pi / 2)
+
         self.distance_traveled = 0
+
+        # Player shot spawns on the tip of the player instead of inside the player
+        self.center_x += self.change_x * offset
+        self.center_y += self.change_y * offset
 
     def update(self):
         """
@@ -466,7 +497,8 @@ class GameView(arcade.View):
             e.draw()
 
         # Draw player rocket
-        self.player_rocket_emitter.emitter.draw()
+        for e in self.emitter_list:
+            e.draw()
 
         # Draw the player sprite
         self.player_sprite.draw()
@@ -490,7 +522,7 @@ class GameView(arcade.View):
         # Draw players score on screen
         arcade.draw_text(
             "SCORE: {}".format(self.player_sprite.score),  # Text to show
-            10,  # X position
+            5,  # X position
             SCREEN_HEIGHT - 20,  # Y position
             arcade.color.WHITE,  # Color of text
             font_name=FONT_NAME
@@ -499,7 +531,7 @@ class GameView(arcade.View):
         # Draw player lives
         arcade.draw_text(
             "LIVES: {}".format(self.player_sprite.lives),  # text to show
-            10,  # X position
+            5,  # X position
             SCREEN_HEIGHT - 50,  # Y position
             arcade.color.WHITE,  # color of text
             font_name=FONT_NAME
@@ -508,14 +540,16 @@ class GameView(arcade.View):
         # Draw player level
         arcade.draw_text(
             "LEVEL: {}".format(self.level),  # text to show
-            10,  # X position
+            5,  # X position
             SCREEN_HEIGHT - 80,  # Y position
             arcade.color.WHITE,  # color of text
             font_name = FONT_NAME
         )
 
     def game_over(self):
+        #menu_view = GameOverView(self.player_sprite.score)
         menu_view = GameOverView()
+        menu_view.setup_scores("MyUser", self.player_sprite.score)
         self.window.show_view(menu_view)
 
     def screen_wrap(self, list_to_wrap):
@@ -590,7 +624,7 @@ class GameView(arcade.View):
 
             if self.player_sprite.lives < 1:
                 self.game_over()
-        
+
         # Asteroid hit by player_shot
         for s in self.player_shot_list:
             for a in s.collides_with_list(self.asteroids_list):
@@ -782,28 +816,49 @@ class MenuView(arcade.View):
         self.window.show_view(game_view)
 
 class GameOverView(arcade.View):
-    highscores = [
-        {
-            "player": "CoolUser123",
-            "score": 123
-        },
-        {
-            "player": "HelloKittyLover1",
-            "score": 50
-        },
-        {
-            "player": "Happy_Asparagus->_:D",
-            "score": 42
-        }
-        ]
+    
+    def setup_scores(self, player_name, score):
+        try:
+            with open("highscores.yml", "r") as f:
+                self.highscores = yaml.safe_load(f)
+            if self.highscores == None:
+                self.highscores = []
+            self.highscores.append({"player": player_name, "score": score})
+            # Negating score when sorting so the largest score comes first
+            self.highscores.sort(key=lambda highscores: -1 * highscores['score'])
+            with open("highscores.yml", "w") as f:
+                yaml.dump(self.highscores, f)
+        except FileNotFoundError:
+            # Hardcoded highscores that will be fetched from a file in the future
+            # If file dosen't exist it creates a new one
+            with open("highscores.yml", "w") as f:
+                yaml.dump([{"player": player_name, "score": score}], f)
+            self.highscores = [{"player": player_name, "score": score}]
         
+            
+    """
+    # WORK IN PROGRESS
+    # Retrieving highscores from api, else displaying local highscores
+    try:
+        highscores = api_get_highscores(API_URL, API_GAME_KEY, 10)
+
+    except requests.exceptions.ConnectionError:
+        print("Could not access api, using local highscores")
+
+    except simplejson.errors.JSONDecodeError:
+        print("Invalid json response, using local highscores")
+
+    else:
+        print("Using api highscores")
+    """
+
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
         self.UImanager = arcade.gui.UIManager()
         self.layout = arcade.gui.UIBoxLayout()
         self.UImanager.enable()
 
-        for i in self.highscores:
+        for i in self.highscores[:10]:
             text = arcade.gui.UILabel(
                 width=400,
                 text=f"{i['player']}: {i['score']}", 
@@ -821,7 +876,7 @@ class GameOverView(arcade.View):
             child=self.layout
             )
         )
-        
+    
     def on_draw(self):
         self.clear()
         arcade.draw_text("GAME OVER!", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50,
