@@ -424,8 +424,10 @@ class GameView(arcade.View):
         self.UFO_list = arcade.SpriteList()
         self.UFO_spawn_timer = 0
 
-        # Player rocket emitter
+        # Emitter list
         self.emitter_list = []
+        
+        # Player rocket emitter
         self.player_rocket_emitter = StoppableEmitter(self.player_sprite)
         self.emitter_list.append(self.player_rocket_emitter.emitter)
 
@@ -548,7 +550,7 @@ class GameView(arcade.View):
             particle_lifetime_min=2,
             particle_lifetime_max=5)
         
-        self.emitter_list.append(new_emitter)
+        return new_emitter
 
 
     def on_update(self, delta_time):
@@ -591,7 +593,7 @@ class GameView(arcade.View):
             for a in s.collides_with_list(self.asteroids_list):
                 
                 # Asteroids explosion
-                self.get_explosion(a.center_x, a.center_y)
+                self.emitter_list.append(self.get_explosion(a.center_x, a.center_y))
                 
                 # split off two asteroids going left or right
                 for direction in [-1, 1]:
