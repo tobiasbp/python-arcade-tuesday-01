@@ -224,6 +224,9 @@ class Player(arcade.Sprite):
         Return True if player has no more lives, otherwise return False
         """
 
+        # Making the player invisible
+        self.alpha = 0
+
         self.lives -= 1
 
         global SOUND_ON
@@ -403,7 +406,6 @@ class GameView(arcade.View):
             center_x=SCREEN_WIDTH-SCREEN_WIDTH/15
         )
 
-
         # Track the current state of what key is pressed
         self.left_pressed = False
         self.right_pressed = False
@@ -471,6 +473,16 @@ class GameView(arcade.View):
         self.player_sprite.change_x = 0
         self.player_sprite.change_y = 0
         
+        # Making the player visible again after death
+        self.player_sprite.alpha = 255
+
+        # Giving the player some random initial movement
+        self.player_sprite.angle = arcade.rand_angle_360_deg()
+        self.player_sprite.forward(1)
+
+        # Compensating for wrong angle of the player graphic
+        self.player_sprite.angle -= 90
+
         # Rocket should not emit particles under reset
         self.player_rocket_emitter.stop()
 
@@ -585,7 +597,7 @@ class GameView(arcade.View):
                 some_thing_wrapped = True
 
         return some_thing_wrapped
-    
+
     def get_explosion(self, pos_x, pos_y):
 
         new_emitter = arcade.make_burst_emitter(
@@ -595,7 +607,7 @@ class GameView(arcade.View):
             particle_speed=10,
             particle_lifetime_min=2,
             particle_lifetime_max=5)
-        
+
         return new_emitter
 
 
@@ -604,6 +616,11 @@ class GameView(arcade.View):
         Movement and game logic
         """
 
+        # Emitters can not be paused
+        for e in self.emitter_list:
+            e.update()
+        self.player_rocket_emitter.update()
+
         if self.is_paused:
             # Decrease time until pause ends
             self.paused_time_left -= delta_time
@@ -611,6 +628,9 @@ class GameView(arcade.View):
             # Unpause when timer reaches 0
             if self.paused_time_left <= 0:
                 self.is_paused = False
+                # Restart game if player is dead
+                if self.player_sprite.lives < 1:
+                    self.game_over()
                 self.reset()
 
             # Skip on_update when game is paused
@@ -630,6 +650,7 @@ class GameView(arcade.View):
         for u in self.player_sprite.collides_with_list(self.UFO_list):
             u.kill()
             self.player_sprite.dies()
+            self.emitter_list.append(self.get_explosion(self.player_sprite.center_x, self.player_sprite.center_y))
             self.shake_cam(SHAKE_AMPLITUDE)
             self.is_paused = True
             self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
@@ -665,13 +686,10 @@ class GameView(arcade.View):
         for a in self.player_sprite.collides_with_list(self.asteroids_list):
             a.kill()
             self.player_sprite.dies()
+            self.emitter_list.append(self.get_explosion(self.player_sprite.center_x, self.player_sprite.center_y))
             self.shake_cam(SHAKE_AMPLITUDE)
             self.is_paused = True
             self.paused_time_left = GAME_PAUSE_LENGTH_SECONDS
-
-            # Restart game if player is dead
-            if self.player_sprite.lives < 1:
-                self.game_over()
 
 
         # Subtract time from UFO_spawn_timer
@@ -686,12 +704,6 @@ class GameView(arcade.View):
             self.player_sprite.angle += PLAYER_ROTATE_SPEED
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.angle -= PLAYER_ROTATE_SPEED
-
-        # Update emitters
-        for e in self.emitter_list:
-            e.update()
-
-        self.player_rocket_emitter.update()
 
         if self.up_pressed:
             self.player_sprite.player_thrust()
