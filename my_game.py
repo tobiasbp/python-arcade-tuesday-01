@@ -887,6 +887,7 @@ class GameOverView(arcade.View):
 
         for i, record in enumerate(self.highscores[:10]):
             
+            # Highlight the new score in yellow
             if i == self.position:
                 color = arcade.color.YELLOW
             else:
