@@ -305,10 +305,6 @@ class PlayerShot(arcade.Sprite):
         # Updates how far player shot moved.
         self.distance_traveled += arcade.get_distance(0, 0, self.change_x, self.change_y)
 
-        # Removes/kills player shot if it moves longer than the range
-        if self.distance_traveled > PLAYER_SHOT_RANGE:
-            self.kill()
-
 
 class StoppableEmitter():
     """
@@ -381,6 +377,11 @@ class GameView(arcade.View):
         self.is_paused = False
         self.paused_time_left = inf
         self.level = 1
+
+        # Variables for keeping track of accuracy
+        self.shots_fired = 0
+        self.shots_hit = 0
+        self.shots_accuracy = 0
 
         # Set up the player info
         self.player_sprite = None
@@ -520,7 +521,7 @@ class GameView(arcade.View):
 
         # Draw players score on screen
         arcade.draw_text(
-            "SCORE: {}".format(self.player_sprite.score),  # Text to show
+            f"SCORE: {self.player_sprite.score} +{round(self.player_sprite.score * self.shots_accuracy)}",  # Text to show
             5,  # X position
             SCREEN_HEIGHT - 20,  # Y position
             arcade.color.WHITE,  # Color of text
@@ -545,10 +546,19 @@ class GameView(arcade.View):
             font_name = FONT_NAME
         )
 
+        # Draw player accuracy
+        arcade.draw_text(
+            "ACCURACY: {}%".format(round(self.shots_accuracy * 100)),  # text to show
+            5,  # X position
+            SCREEN_HEIGHT - 110,  # Y position
+            arcade.color.WHITE,  # color of text
+            font_name = FONT_NAME
+        )
+
     def game_over(self):
         #menu_view = GameOverView(self.player_sprite.score)
         menu_view = GameOverView()
-        menu_view.setup_scores("MyUser", self.player_sprite.score)
+        menu_view.setup_scores("MyUser", self.player_sprite.score + round(self.player_sprite.score * self.shots_accuracy))
         self.window.show_view(menu_view)
 
     def screen_wrap(self, list_to_wrap):
@@ -609,6 +619,9 @@ class GameView(arcade.View):
         # Do player_shot and UFO collide?
         for s in self.player_shot_list:
             for u in s.collides_with_list(self.UFO_list):
+                self.shots_fired += 1
+                self.shots_hit += 1
+                self.shots_accuracy = self.shots_hit / self.shots_fired
                 self.player_sprite.score += u.value
                 s.kill()
                 u.kill()
@@ -627,6 +640,9 @@ class GameView(arcade.View):
         # Asteroid hit by player_shot
         for s in self.player_shot_list:
             for a in s.collides_with_list(self.asteroids_list):
+                self.shots_fired += 1
+                self.shots_hit += 1
+                self.shots_accuracy = self.shots_hit / self.shots_fired
                 
                 # Asteroids explosion
                 self.emitter_list.append(self.get_explosion(a.center_x, a.center_y))
@@ -686,6 +702,13 @@ class GameView(arcade.View):
 
         # Update the player shots
         self.player_shot_list.update()
+
+        for s in self.player_shot_list:
+            # Removes/kills player shot if it moves longer than the range
+            if s.distance_traveled > PLAYER_SHOT_RANGE:
+                self.shots_fired += 1
+                self.shots_accuracy = self.shots_hit / self.shots_fired
+                s.kill()
 
         # Time between asteroid spawn count down
         self.asteroids_timer_seconds -= delta_time
