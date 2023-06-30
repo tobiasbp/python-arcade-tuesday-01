@@ -886,28 +886,24 @@ class GameOverView(arcade.View):
         self.UImanager.enable()
 
         for i, record in enumerate(self.highscores[:10]):
+            
             if i == self.position:
-                text = arcade.gui.UILabel(
-                    width=400,
-                    text=f"{record['player']}: {record['score']}",
-                    text_color=arcade.color.YELLOW,
-                    font_name=FONT_NAME
-                )
+                color = arcade.color.YELLOW
             else:
-                text = arcade.gui.UILabel(
-                    width=400,
-                    text=f"{record['player']}: {record['score']}",
-                    text_color=arcade.color.WHITE,
-                    font_name=FONT_NAME
-                )
+                color = arcade.color.WHITE
+
+            text = arcade.gui.UILabel(
+                width=400,
+                text=f"{record['player']}: {record['score']}",
+                text_color=color,
+                font_name=FONT_NAME
+            )
 
             self.layout.add(text.with_space_around(bottom=10))
         
         self.UImanager.add(
             arcade.gui.UIAnchorWidget(
-            #anchor_x="center_x",
             align_x=100,
-            #anchor_y="center_y",
             align_y=-20,
             child=self.layout
             )
