@@ -840,6 +840,9 @@ class MenuView(arcade.View):
 class GameOverView(arcade.View):
     
     def setup_scores(self, player_name, score):
+
+        self.score = score
+
         try:
             with open("highscores.yml", "r") as f:
                 self.highscores = yaml.safe_load(f)
@@ -857,6 +860,8 @@ class GameOverView(arcade.View):
                 yaml.dump([{"player": player_name, "score": score}], f)
             self.highscores = [{"player": player_name, "score": score}]
         
+        self.position = self.highscores.index({"player": player_name, "score": score})
+
             
     """
     # WORK IN PROGRESS
@@ -880,21 +885,27 @@ class GameOverView(arcade.View):
         self.layout = arcade.gui.UIBoxLayout()
         self.UImanager.enable()
 
-        for i in self.highscores[:10]:
+        for i, record in enumerate(self.highscores[:10]):
+            
+            # Highlight the new score in yellow
+            if i == self.position:
+                color = arcade.color.YELLOW
+            else:
+                color = arcade.color.WHITE
+
             text = arcade.gui.UILabel(
                 width=400,
-                text=f"{i['player']}: {i['score']}", 
-                text_color=arcade.color.WHITE,
-                bold=True,
+                text=f"{record['player']}: {record['score']}",
+                text_color=color,
                 font_name=FONT_NAME
-                )
+            )
 
-            self.layout.add(text.with_space_around(bottom=20))
+            self.layout.add(text.with_space_around(bottom=10))
         
         self.UImanager.add(
             arcade.gui.UIAnchorWidget(
-            anchor_x="center_x",
-            anchor_y="center_y",
+            align_x=100,
+            align_y=-20,
             child=self.layout
             )
         )
@@ -903,6 +914,8 @@ class GameOverView(arcade.View):
         self.clear()
         arcade.draw_text("GAME OVER!", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50,
                          arcade.color.WHITE, 20, anchor_x="center", font_name=FONT_NAME)
+        arcade.draw_text(f"Score: {self.score}  Position: #{self.position + 1}", SCREEN_WIDTH / 2, SCREEN_HEIGHT - 110,
+                         arcade.color.YELLOW, 14, anchor_x="center", font_name=FONT_NAME)
         self.UImanager.draw()
 
     def on_key_press(self, key, _modifiers):
